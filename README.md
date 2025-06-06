@@ -15,7 +15,7 @@ Active localization instead aims to reason about the environment and proactively
 </p>
 
 ## How to Actively Localize?
-The workflow is simply, you can start from any inputs SfM reconstruction, mesh, semantics image, the only **mandatory** thing are the waypoints, 3D locations (x, y, z) from which you want to provide the "best" viewing angles:
+The workflow is simple, you can start from any inputs SfM reconstruction, mesh, semantics image, the only **mandatory** thing are the waypoints, 3D locations (x, y, z) from which you want to provide the "best" viewing angles:
 
 ```
 input: any <SfM model, mesh, semantics, etc..> + 3D waypoints (mandatory)
