@@ -3,9 +3,9 @@
 Active localization is the task of determining the most informative viewpoints to improve a robot’s pose estimation within a known map. Traditionally, a robot navigating an environment may rely on passive localization—simply pointing its camera forward while moving. However, this ignores the fact that not all viewpoints are equally informative. Consider a scenario where the robot faces a featureless white wall: looking straight ahead in this case offers little to no localization cues.
 
 <p align="center">
-  <img src="images/forward1.png" width="30%" alt="passloc1"/>
-  <img src="images/forward2.png" width="30%" alt="passloc2"/>
-  <img src="images/forward3.png" width="30%" alt="passloc3"/>
+  <img src="assets/forward1.png" width="30%" alt="passloc1"/>
+  <img src="assets/forward2.png" width="30%" alt="passloc2"/>
+  <img src="assets/forward3.png" width="30%" alt="passloc3"/>
 </p>
 
 Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimiality criteria and Fisher information matrics, visibility, distribution of landmarks or deep learned techniques. 
