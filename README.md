@@ -1,4 +1,31 @@
-# ActLoc Best Single Viewpoint Selection Pipeline
+# Active Localization Benchmark
+
+Active localization is the task of determining the most informative viewpoints to improve a robot’s pose estimation within a known map. Traditionally, a robot navigating an environment may rely on passive localization—simply pointing its camera forward while moving. However, this ignores the fact that not all viewpoints are equally informative. Consider a scenario where the robot faces a featureless white wall: looking straight ahead in this case offers little to no localization cues.
+
+<p align="center">
+  <img src="images/forward1.png" width="30%" alt="passloc1"/>
+  <img src="images/forward2.png" width="30%" alt="passloc2"/>
+  <img src="images/forward3.png" width="30%" alt="passloc3"/>
+</p>
+
+Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimiality criteria and Fisher information matrics, visibility, distribution of landmarks or deep learned techniques. 
+
+<p align="center">
+  <img src="images/placeholder.png" width="30%" alt="Image 1"/>
+</p>
+
+## How to Actively Localize?
+The workflow is simply, you can start from any inputs SfM reconstruction, mesh, semantics image, the only **mandatory** thing are the waypoints, 3D locations (x, y, z) from which you want to provide the "best" viewing angles:
+
+```
+input: any <SfM model, mesh, semantics, etc..> + 3D waypoints (mandatory)
+         ↓
+    inference.py
+         ↓
+    best viewing angles (we assume for each 3D location you produce an orientation in form of quaternion)
+```
+
+
 
 This repository provides an end-to-end pipeline for predicting optimal camera viewing directions at given waypoints in 3D scenes and capturing images at those predicted viewpoints.
 
