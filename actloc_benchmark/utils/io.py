@@ -28,19 +28,18 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-import argparse
 import collections
 import os
 import struct
 
 import numpy as np
+import logging
+from scipy.spatial.transform import Rotation as R
 
 CameraModel = collections.namedtuple(
     "CameraModel", ["model_id", "model_name", "num_params"]
 )
-Camera = collections.namedtuple(
-    "Camera", ["id", "model", "width", "height", "params"]
-)
+Camera = collections.namedtuple("Camera", ["id", "model", "width", "height", "params"])
 BaseImage = collections.namedtuple(
     "Image", ["id", "qvec", "tvec", "camera_id", "name", "xys", "point3D_ids"]
 )
@@ -267,9 +266,9 @@ def read_images_binary(path_to_model_file):
                 binary_image_name += current_char
                 current_char = read_next_bytes(fid, 1, "c")[0]
             image_name = binary_image_name.decode("utf-8")
-            num_points2D = read_next_bytes(
-                fid, num_bytes=8, format_char_sequence="Q"
-            )[0]
+            num_points2D = read_next_bytes(fid, num_bytes=8, format_char_sequence="Q")[
+                0
+            ]
             x_y_id_s = read_next_bytes(
                 fid,
                 num_bytes=24 * num_points2D,
@@ -404,9 +403,9 @@ def read_points3D_binary(path_to_model_file):
             xyz = np.array(binary_point_line_properties[1:4])
             rgb = np.array(binary_point_line_properties[4:7])
             error = np.array(binary_point_line_properties[7])
-            track_length = read_next_bytes(
-                fid, num_bytes=8, format_char_sequence="Q"
-            )[0]
+            track_length = read_next_bytes(fid, num_bytes=8, format_char_sequence="Q")[
+                0
+            ]
             track_elems = read_next_bytes(
                 fid,
                 num_bytes=8 * track_length,
@@ -562,7 +561,6 @@ def rotmat2qvec(R):
         qvec *= -1
     return qvec
 
-from scipy.spatial.transform import Rotation as R
 
 def angles_to_quaternion_and_translation(azimuth_deg, elevation_deg, position):
     # convert azimuth and elevation to radians
@@ -570,18 +568,14 @@ def angles_to_quaternion_and_translation(azimuth_deg, elevation_deg, position):
     el = np.radians(elevation_deg)
 
     # rotation around y (azimuth)
-    R_az = np.array([
-        [np.cos(az), 0, np.sin(az)],
-        [0, 1, 0],
-        [-np.sin(az), 0, np.cos(az)]
-    ])
+    R_az = np.array(
+        [[np.cos(az), 0, np.sin(az)], [0, 1, 0], [-np.sin(az), 0, np.cos(az)]]
+    )
 
     # rotation around x (elevation)
-    R_el = np.array([
-        [1, 0, 0],
-        [0, np.cos(el), -np.sin(el)],
-        [0, np.sin(el),  np.cos(el)]
-    ])
+    R_el = np.array(
+        [[1, 0, 0], [0, np.cos(el), -np.sin(el)], [0, np.sin(el), np.cos(el)]]
+    )
 
     # camera rotation: apply elevation first, then azimuth
     rot_matrix = R_el @ R_az
@@ -597,8 +591,9 @@ def angles_to_quaternion_and_translation(azimuth_deg, elevation_deg, position):
 
     return qvec, tvec
 
+
 def write_colmap_pose_file(poses, angles, output_path):
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         for idx, (pose, angle) in enumerate(zip(poses, angles)):
             x, y, z = pose
             azim, elev = angle
@@ -610,43 +605,42 @@ def write_colmap_pose_file(poses, angles, output_path):
             f.write(line)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Read and write COLMAP binary and text models"
-    )
-    parser.add_argument("--input_model", help="path to input model folder")
-    parser.add_argument(
-        "--input_format",
-        choices=[".bin", ".txt"],
-        help="input model format",
-        default="",
-    )
-    parser.add_argument("--output_model", help="path to output model folder")
-    parser.add_argument(
-        "--output_format",
-        choices=[".bin", ".txt"],
-        help="output model format",
-        default=".txt",
-    )
-    args = parser.parse_args()
+def load_waypoints(waypoints_file: str) -> np.ndarray:
+    """load waypoint coordinates from text file"""
+    if not os.path.exists(waypoints_file):
+        raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
 
-    cameras, images, points3D = read_model(
-        path=args.input_model, ext=args.input_format
-    )
+    waypoints = np.loadtxt(waypoints_file, dtype=np.float32)
+    if waypoints.ndim == 1 and waypoints.shape[0] == 3:
+        waypoints = waypoints.reshape(1, 3)
+    elif waypoints.ndim != 2 or waypoints.shape[1] != 3:
+        raise ValueError(f"expected waypoints shape (N, 3), got {waypoints.shape}")
 
-    print("num_cameras:", len(cameras))
-    print("num_images:", len(images))
-    print("num_points3D:", len(points3D))
+    logging.info(f"loaded {waypoints.shape[0]} waypoints from {waypoints_file}")
+    return waypoints
 
-    if args.output_model is not None:
-        write_model(
-            cameras,
-            images,
-            points3D,
-            path=args.output_model,
-            ext=args.output_format,
+
+def load_sfm_model(sfm_dir: str):
+    """load colmap sfm reconstruction model"""
+    if not os.path.isdir(sfm_dir):
+        raise FileNotFoundError(f"sfm directory not found: {sfm_dir}")
+
+    # try binary format first, fallback to text
+    try:
+        cameras, images, points3D = read_model(sfm_dir, ext=".bin")
+        logging.info(
+            f"loaded sfm model (binary): {len(images)} images, {len(points3D)} points"
         )
+    except Exception:
+        try:
+            cameras, images, points3D = read_model(sfm_dir, ext=".txt")
+            logging.info(
+                f"loaded sfm model (text): {len(images)} images, {len(points3D)} points"
+            )
+        except Exception as e:
+            raise RuntimeError(f"failed to load sfm model from {sfm_dir}: {e}")
 
+    if not images:
+        raise ValueError("no images found in the sfm model")
 
-if __name__ == "__main__":
-    main()
+    return cameras, images, points3D

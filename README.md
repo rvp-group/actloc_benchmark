@@ -2,11 +2,11 @@
 
 Active localization is the task of determining the most informative viewpoints to improve a robot’s pose estimation within a known map. Traditionally, a robot navigating an environment may rely on passive localization—simply pointing its camera forward while moving. However, this ignores the fact that not all viewpoints are equally informative. Consider a scenario where the robot faces a featureless white wall: looking straight ahead in this case offers little to no localization cues.
 
-<p align="center">
+<!-- <p align="center">
   <img src="assets/forward1.png" width="30%" alt="passloc1"/>
   <img src="assets/forward2.png" width="30%" alt="passloc2"/>
   <img src="assets/forward3.png" width="30%" alt="passloc3"/>
-</p>
+</p> -->
 
 Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimiality criteria and Fisher information matrics, visibility, distribution of landmarks or deep learned techniques. 
 
@@ -33,19 +33,23 @@ This repository provides an end-to-end pipeline for predicting optimal camera vi
 
 1. **Create the conda environment from the provided environment file:**
    ```bash
-   conda env create -f environment.yml
+   conda create -n actloc_benchmark  python=3.11
    ```
 
 2. **Activate the environment:**
    ```bash
-   conda activate flash_env
+   conda activate actloc_benchmark
+   ```
+3. **Install:**
+   ```bash
+   pip install -r requirements.txt && pip install -e .
    ```
 
 ## Overview
 
 The pipeline consists of two main components:
 
-1. **`inference.py`** - Predicts best viewing angles for each waypoint using ActLoc Model
+1. **`inference.py`** - Predicts best viewing angles for each waypoint 
 2. **`capture_images_at_best_viewing_directions.py`** - Captures images at the predicted optimal viewpoints
 
 ## Pipeline Workflow
@@ -75,7 +79,6 @@ Predict the best viewing angles for your waypoints:
 python inference.py \
     --sfm-dir ./example_data/00005_reference_sfm \
     --waypoints-file ./example_data/sampled_viewpoints.txt \
-    --checkpoint ./checkpoints/actloc_binary_best.pth \
     --output-angles ./example_data/best_viewing_angles.txt
 ```
 
@@ -105,7 +108,7 @@ python capture_images_at_best_viewing_directions.py \
   x2 y2 z2
   ...
   ```
-- **Model Checkpoint**: Trained ActLoc model weights
+- **Model Checkpoint**: (optional) if you use learning-based method
 
 ### For Image Capture (`capture_images_at_best_viewing_directions.py`)
 
@@ -154,14 +157,12 @@ python inference.py [OPTIONS]
 **Key Arguments:**
 - `--sfm-dir`: Path to COLMAP SfM reconstruction folder
 - `--waypoints-file`: Path to waypoints text file
-- `--checkpoint`: Path to trained model checkpoint [Only the ActLoc-Bin weights are provided for now]
 - `--output-angles`: Output file for best viewing angles
-- `--num-classes`: Number of model output classes (2 or 4)
-- `--error-threshold`: Reprojection error threshold for point filtering (default: 0.5)
 
 **Output:**
 - Text file with best viewing angles for each waypoint
 - Console output showing prediction grids and probabilities
+
 
 ### Image Capture Script (`capture_images_at_best_viewing_directions.py`)
 
@@ -178,6 +179,11 @@ python capture_images_at_best_viewing_directions.py [OPTIONS]
 **Output:**
 - Images named: `waypoint_00001_x20_y-160.jpg`
 - `best_viewpoints_info.txt`: Camera information summary
+
+
+## How to Run Your Own Method:
+
+TBA
 
 ## Example Results
 
