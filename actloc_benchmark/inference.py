@@ -9,7 +9,7 @@ logging.basicConfig(
 )
 
 try:
-    from actloc_benchmark.utils.io import *
+    from utils.io import *
 except ImportError as e:
     logging.error(f"Failed to import required local modules: {e}")
     logging.error("ensure utils/io.py is accessible")

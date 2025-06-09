@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 try:
-    from actloc_benchmark.utils.io import *
+    from utils.io import *
 except ImportError:
     logging.error("Failed to import io from utils. Please ensure utils/io.py exists.")
     raise
