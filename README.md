@@ -10,9 +10,9 @@ Active localization is the task of determining the most informative viewpoints t
 
 Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimiality criteria and Fisher information matrics, visibility, distribution of landmarks or deep learned techniques. 
 
-<p align="center">
+<!-- <p align="center">
   <img src="images/placeholder.png" width="30%" alt="Image 1"/>
-</p>
+</p> -->
 
 ## How to Actively Localize?
 The workflow is simple, you can start from any inputs SfM reconstruction, mesh, semantics image, the only **mandatory** thing are the waypoints, 3D locations (x, y, z) from which you want to provide the "best" viewing angles:

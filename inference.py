@@ -65,7 +65,8 @@ def filter_points_by_error(points3D: dict, error_threshold: float = 0.5):
     return points_array
 
 # important: you can modify the signature of this function if needed,
-# just make sure the input remains waypoints: np.ndarray
+# just make sure the input remains waypoints: np.ndarray and output is best angles: np.ndarray
+# other inputs can be any: you can levarage RGB data, semantics, full mesh, ...
 def predict_best_angles_per_pose(waypoints: np.ndarray, points):
     # the sample method is based on maximizing visibility
     from method.max_visibility import predict_pose
