@@ -1,84 +1,11 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Virtual environments
-.env/
-.venv/
-env/
+build
+.venv
+__pycache__
+*.pyc
+*.egg-info
+.ipynb_checkpoints
+outputs/
+datasets/*
+!datasets/sacre_coeur/
+datasets/sacre_coeur/query
 venv/
-ENV/
-env.bak/
-venv.bak/
-
-# pipenv / poetry
-Pipfile.lock
-poetry.lock
-
-# Jupyter Notebook
-.ipynb_checkpoints/
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# MyPy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Cython debug symbols
-cython_debug/
-
-# VS Code
-.vscode/
-
-# macOS
-.DS_Store
-
-# pyenv
-.python-version
-
-# Logs
-*.log
-
-# Backup files
-*.bak
-*.swp
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.eggs/
-
-.DS_Store
-
-*data*/
-
-models/
-
