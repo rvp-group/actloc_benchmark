@@ -5,9 +5,12 @@ import numpy as np
 import open3d as o3d
 from scipy.spatial.transform import Rotation as R
 
+from utils.io import *
+
+
 from camera import Camera
 
-cam = Camera()  # instantiate one for allFH
+cam = Camera()  # instantiate one for all
 
 
 def load_mesh(meshfile):
@@ -48,16 +51,16 @@ def load_waypoints_and_angles(waypoints_file, angles_file):
     return waypoints, angles
 
 
-def set_camera_to_best_viewpoint(vis, position, x_angle, y_angle):
+def set_camera_to_best_viewpoint(vis, Twc):
     """
     Set the camera to a specific position and orient it according to the best viewing angles.
 
     Args:
         vis: Open3D visualizer
-        position: Camera position [x, y, z]
-        x_angle: X-axis rotation angle in degrees (elevation)
-        y_angle: Y-axis rotation angle in degrees (azimuth)
+        Twc: homogenous camera matrix camera in world
+       
     """
+
     ctr = vis.get_view_control()
     cam_params = ctr.convert_to_pinhole_camera_parameters()
 
@@ -71,24 +74,14 @@ def set_camera_to_best_viewpoint(vis, position, x_angle, y_angle):
             [0, 0, 0, 1],
         ]
     )
-
+    # TODO not sure about this part
     # Extract initial rotation
     initial_rotation = initial_extrinsic[:3, :3]
 
-    # Apply the best viewing angles as rotations
-    # Convert degrees to radians
-    rotation_x = R.from_euler("x", np.deg2rad(x_angle)).as_matrix()
-    rotation_y = R.from_euler("y", np.deg2rad(y_angle)).as_matrix()
-
-    # Combine rotations with the initial rotation
-    # Apply rotations in the same order as during training data generation
-    combined_rotation = rotation_x @ rotation_y @ initial_rotation
-    new_translation = -combined_rotation @ position
-
     # Create new extrinsic matrix
     new_extrinsic = np.eye(4)
-    new_extrinsic[:3, :3] = combined_rotation
-    new_extrinsic[:3, 3] = new_translation
+    new_extrinsic[:3, :3] = Twc[0:3, 0:3] @ initial_rotation
+    new_extrinsic[:3, 3] = -new_extrinsic[:3, :3] @ Twc[0:3, 3]
 
     # Apply the camera parameters
     cam_params.extrinsic = new_extrinsic
@@ -97,7 +90,7 @@ def set_camera_to_best_viewpoint(vis, position, x_angle, y_angle):
     )
 
     if not success:
-        print(f"Warning: Failed to set camera parameters for position {position}")
+        print(f"Warning: Failed to set camera parameters for position {Twc[0:3, 3]}")
 
     vis.update_renderer()
     vis.poll_events()
@@ -106,7 +99,7 @@ def set_camera_to_best_viewpoint(vis, position, x_angle, y_angle):
 
 
 def capture_best_viewpoint_image(
-    vis, waypoint_idx, position, x_angle, y_angle, output_folder
+    vis, waypoint_idx, Twc, output_folder
 ):
     """
     Capture an image at the best viewpoint for a given waypoint.
@@ -114,13 +107,11 @@ def capture_best_viewpoint_image(
     Args:
         vis: Open3D visualizer
         waypoint_idx: Index of the waypoint (for naming)
-        position: Camera position [x, y, z]
-        x_angle: X-axis rotation angle in degrees
-        y_angle: Y-axis rotation angle in degrees
+        Twc: 4x4 homogenous transformation describing standard cam in world
         output_folder: Folder to save the captured image
     """
     # Set camera to best viewpoint
-    success = set_camera_to_best_viewpoint(vis, position, x_angle, y_angle)
+    success = set_camera_to_best_viewpoint(vis, Twc)
 
     if not success:
         print(f"Failed to set camera for waypoint {waypoint_idx + 1}")
@@ -136,32 +127,14 @@ def capture_best_viewpoint_image(
         os.makedirs(output_folder)
 
     # Generate filename
-    filename = f"waypoint_{waypoint_idx + 1:05d}_x{int(x_angle)}_y{int(y_angle)}.jpg"
+    filename = f"{waypoint_idx}.png"
     filepath = os.path.join(output_folder, filename)
 
     # Save the image
     o3d.io.write_image(filepath, o3d.geometry.Image(image))
 
-    print(f"Saved: {filename}")
+    print(f"\tsaved: {filename}")
     return True
-
-
-def save_camera_info(waypoints, angles, output_folder):
-    """Save camera information for each captured image."""
-    info_file = os.path.join(output_folder, "best_viewpoints_info.txt")
-
-    with open(info_file, "w") as f:
-        f.write("# Waypoint_ID X_coord Y_coord Z_coord X_angle Y_angle Filename\n")
-        for i, (waypoint, angle) in enumerate(zip(waypoints, angles)):
-            x_pos, y_pos, z_pos = waypoint
-            x_angle, y_angle = angle
-            filename = f"waypoint_{i + 1:03d}_x{int(x_angle)}_y{int(y_angle)}.jpg"
-            f.write(
-                f"{i + 1} {x_pos:.6f} {y_pos:.6f} {z_pos:.6f} {x_angle:.1f} {y_angle:.1f} {filename}\n"
-            )
-
-    print(f"Saved camera info to: {info_file}")
-
 
 def main():
     parser = argparse.ArgumentParser(
@@ -176,38 +149,33 @@ def main():
         help="Path to mesh file (.glb, .obj, .ply, etc.)",
     )
     parser.add_argument(
-        "--waypoints-file",
+        "--pose-file",
         type=str,
-        default="./example_data/sampled_viewpoints.txt",
-        help="Path to waypoints file (Nx3 coordinates)",
+        default="./example_data/estimate/pose_estimate.txt",
+        help="Path to pose estimate, this should be waypoints and best orientations",
     )
-    parser.add_argument(
-        "--angles-file",
-        type=str,
-        default="./example_data/best_viewing_angles.txt",
-        help="Path to best viewing angles file (Nx2, x_angle y_angle)",
-    )
+
     parser.add_argument(
         "--output-folder",
         type=str,
-        default="./example_data/best_viewpoint_images",
+        default="./example_data/estimate/best_viewpoint_images",
         help="Output folder for captured images (default: ./example_data/best_viewpoint_images)",
     )
 
     args = parser.parse_args()
 
-    # Validate input files
+    # validate input files
     if not os.path.exists(args.mesh_file):
         raise FileNotFoundError(f"Mesh file not found: {args.mesh_file}")
-    if not os.path.exists(args.waypoints_file):
-        raise FileNotFoundError(f"Waypoints file not found: {args.waypoints_file}")
-    if not os.path.exists(args.angles_file):
-        raise FileNotFoundError(f"Angles file not found: {args.angles_file}")
+    if not os.path.exists(args.pose_file):
+        raise FileNotFoundError(f"Pose estimate not found: {args.pose_file}")
 
-    # Set up paths
+    output_dir = os.path.dirname(args.output_folder)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # set up paths
     mesh_path = args.mesh_file
-    waypoints_path = args.waypoints_file
-    angles_path = args.angles_file
+    poses_path = args.pose_file
     output_folder = args.output_folder
 
     try:
@@ -219,7 +187,7 @@ def main():
             raise RuntimeError(f"Failed to load mesh from {mesh_path}")
 
         print("Loading waypoints and angles...")
-        waypoints, angles = load_waypoints_and_angles(waypoints_path, angles_path)
+        poses = parse_poses_file(poses_path, Twc=True) # we want standard camera transform camera in world
 
         # Setup visualizer
         print("Setting up visualizer...")
@@ -239,35 +207,23 @@ def main():
         )
         ctr.convert_from_pinhole_camera_parameters(param, allow_arbitrary=True)
 
-        print(f"Starting image capture for {len(waypoints)} waypoints...")
+        print(f"Starting image capture for {len(poses)} waypoints...")
 
         # Process each waypoint
         successful_captures = 0
-        for i, (waypoint, angle) in enumerate(zip(waypoints, angles)):
-            x_angle, y_angle = angle
-
-            # Skip if angles are NaN (failed inference)
-            if np.isnan(x_angle) or np.isnan(y_angle):
-                print(f"Waypoint {i + 1}: Skipping due to invalid angles (NaN)")
-                continue
-
-            print(
-                f"Processing waypoint {i + 1}/{len(waypoints)}: "
-                f"pos={waypoint}, angles=({x_angle:.1f}°, {y_angle:.1f}°)"
-            )
+        for idx, Twc in poses.items():
+      
+            print(f"Processing waypoint {idx}")
 
             success = capture_best_viewpoint_image(
-                vis, i, waypoint, x_angle, y_angle, output_folder
+                vis, idx, Twc, output_folder
             )
 
             if success:
                 successful_captures += 1
 
-        # Save camera information
-        save_camera_info(waypoints, angles, output_folder)
-
         print(
-            f"\nCompleted! Successfully captured {successful_captures}/{len(waypoints)} images"
+            f"\nCompleted! Successfully captured {successful_captures}/{len(poses.keys())} images"
         )
         print(f"Images saved to: {output_folder}")
 

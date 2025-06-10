@@ -25,8 +25,6 @@ input: any <SfM model, mesh, semantics, etc..> + 3D waypoints (mandatory)
     best viewing angles (we assume for each 3D location you produce an orientation in form of quaternion)
 ```
 
-
-
 This repository provides an end-to-end pipeline for predicting optimal camera viewing directions at given waypoints in 3D scenes and capturing images at those predicted viewpoints.
 
 ## Environment Setup
@@ -45,28 +43,62 @@ This repository provides an end-to-end pipeline for predicting optimal camera vi
    pip install -r requirements.txt && pip install -e .
    ```
 
+### Download some sample data
+
+
 ## Overview
+The pipeline consists of four main components:
 
-The pipeline consists of two main components:
+1. **`inference.py`** - Predicts best viewing angles for each waypoint (this is where you should put your hands for the challenge),
+here you need to output the orientations. 
+2. **`capture_images_at_best_viewing_directions.py`** - Captures images at the predicted best orientations, this is required to evaluate the localization accuracy.
+3. **`match_and_localize.py`** - Given poses and their corresponding images from step (1) and (2) you want to match and localize against the SfM model. For this purpose we employ [hloc](https://github.com/cvg/Hierarchical-Localization). For each image localized you will have an error.
+4. **`evaluate.py`** - Given the errors from localization, this outputs the F1 score according to [learning-where-to-look](https://link.springer.com/chapter/10.1007/978-3-031-73016-0_12).
 
-1. **`inference.py`** - Predicts best viewing angles for each waypoint 
-2. **`capture_images_at_best_viewing_directions.py`** - Captures images at the predicted optimal viewpoints
+We now explain how each module work and what are I/O
 
-## Pipeline Workflow
+## Test with sample data
+*TODO script with wget*
+You can download some sample data from here, place this in `actloc_benchmark` and unzip it
 
-```
-Input: SfM Reconstruction + Waypoints
-         ↓
-    inference.py
-         ↓
-    Best Viewing Angles
-         ↓
-capture_images_at_best_viewing_directions.py
-         ↓
-    Output: Images at Optimal Viewpoints
+```bash
+cd actloc_benchmark/actloc_benchmark/example_data/00005-yPKGKBCyYx8
 ```
 
-## Example Data Download
+### `inference.py`
+Predict the best viewing angles for your waypoints (here is where you should put your hands) for now the best angles heuristics is simply based on maximizing the visibility of 3d landmarks. The scripts output full estimate pose (waypoint + orientation) in COLMAP style:
+```bash
+python ../../inference.py \ 
+    --waypoints-file sampled_waypoints.txt \ 
+    --sfm-dir scene_reconstruction \ 
+    --output-estimate estimate/estimate_poses.txt
+```
+
+### `capture_images_at_best_viewing_directions.py`
+Capture images corresponding to previously estimated poses:
+```bash
+python ../../capture_images_at_best_viewing_directions.py \
+    --pose-file ../00005-yPKGKBCyYx8/estimate/estimate_poses.txt \ 
+    --mesh-file yPKGKBCyYx8.glb \ 
+    --output-folder estimate/images
+```
+
+### `match_and_localize.py`
+```bash
+python ../../match_and_localize.py \
+    --sfm_model_path scene_reconstruction \
+    --ref_images_path scene_reconstruction/images \  
+    --ref_features_fn scene_reconstruction/sfm_features.h5 \  
+    --query_images_path estimate/images \
+    --poses_fn estimate/estimate_poses.txt \ 
+    --output_path estimate
+```
+
+### `evaluate.py`
+TODO
+
+
+<!-- ## Example Data Download
 You can download the example data from [here](https://drive.google.com/drive/folders/1BunuI_wIVeL1oZ1zWxxAfu7HSop7uMMi?usp=sharing) and put it in the root folder of this repo to run the pipeline.
 
 ## Quick Start (with the example data)
@@ -302,4 +334,4 @@ python evaluation_script.py
 
 # Evaluate on the test scenes by default with sparsification
 python evaluation_script.py --enable-sparsification
-```
+``` -->

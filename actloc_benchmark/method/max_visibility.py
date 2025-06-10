@@ -1,5 +1,7 @@
 import numpy as np
 import logging
+from scipy.spatial.transform import Rotation as Rot
+ 
 
 fx, fy, cx, cy, height, width = [320, 320, 240, 320, 480, 640]
 
@@ -92,8 +94,11 @@ def predict_pose(waypoint: np.ndarray, waypoint_idx: int, points: np.ndarray):
     best_idx = np.unravel_index(np.argmax(visible_counts), visible_counts.shape)
     best_elev = x_angles[best_idx[0]]
     best_azim = y_angles[best_idx[1]]
-
-    return best_elev, best_azim
+    
+    R = get_rotation_matrix(azim, elev)
+    r = Rot.from_matrix(R)
+    
+    return r.as_quat()
 
 
 def filter_points_by_error(points3D: dict, error_threshold: float = 0.5):

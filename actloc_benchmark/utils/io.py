@@ -35,6 +35,7 @@ import struct
 import numpy as np
 import logging
 from scipy.spatial.transform import Rotation as R
+from pathlib import Path
 
 CameraModel = collections.namedtuple(
     "CameraModel", ["model_id", "model_name", "num_params"]
@@ -562,62 +563,89 @@ def rotmat2qvec(R):
     return qvec
 
 
-def angles_to_quaternion_and_translation(azimuth_deg, elevation_deg, position):
-    # convert azimuth and elevation to radians
-    az = np.radians(azimuth_deg)
-    el = np.radians(elevation_deg)
+def standard_qt_to_pose(qvec, tvec):
+    # qvec: (x, y, z, w)
+    # tvec: (3,)
+    
+    # convert to rotation matrix
+    r = R.from_quat(qvec)
+    R_mat = r.as_matrix()
+    
+    # build pose matrix Tcw
+    Twc = np.eye(4)
+    Twc[:3, :3] = R_mat
+    Twc[:3, 3] = tvec
+    return Twc
 
-    # rotation around y (azimuth)
-    R_az = np.array(
-        [[np.cos(az), 0, np.sin(az)], [0, 1, 0], [-np.sin(az), 0, np.cos(az)]]
-    )
+def pose_to_colmap_qt(Tcw):
+    # extract rotation and translation
+    R_mat = Tcw[:3, :3]
+    tvec = Tcw[:3, 3]
 
-    # rotation around x (elevation)
-    R_el = np.array(
-        [[1, 0, 0], [0, np.cos(el), -np.sin(el)], [0, np.sin(el), np.cos(el)]]
-    )
-
-    # camera rotation: apply elevation first, then azimuth
-    rot_matrix = R_el @ R_az
-
-    # rotation from world to camera (COLMAP expects world-to-camera)
-    # TODO maybe this is the inverse? I need to check
-    R_wc = rot_matrix
-    qvec = R.from_matrix(R_wc).as_quat()  # returns [x, y, z, w]
-    qvec = [qvec[3], qvec[0], qvec[1], qvec[2]]  # convert to [w, x, y, z]
-
-    # translation: COLMAP expects camera center in world
-    tvec = -R_wc @ position  # t = -R * C
+    # convert rotation matrix back to quaternion
+    r = R.from_matrix(R_mat)
+    quat_xyzw = r.as_quat()  # (x, y, z, w)
+    qvec = np.roll(quat_xyzw, 1)  # to COLMAP style (w, x, y, z)
 
     return qvec, tvec
+
+def invert_pose(T):
+    R_mat = T[:3, :3]
+    t = T[:3, 3]
+    
+    T_inv = np.eye(4)
+    T_inv[:3, :3] = R_mat.T
+    T_inv[:3, 3] = -R_mat.T @ t
+
+    return T_inv
 
 
 def write_colmap_pose_file(poses, angles, output_path):
     with open(output_path, "w") as f:
-        for idx, (pose, angle) in enumerate(zip(poses, angles)):
-            x, y, z = pose
-            azim, elev = angle
-            position = np.array([x, y, z])
-            qvec, tvec = angles_to_quaternion_and_translation(azim, elev, position)
-            # TODO filename needs to match image name for localization
-            filename = f"{idx:05d}.png"
-            line = f"{filename} {' '.join(map(str, qvec))} {' '.join(map(str, tvec))}\n"
+        f.write("# id qw qx qy qz tx ty tz\n")
+        for (p_id, tvec), (a_id, qvec) in zip(poses.items(), angles.items()):
+            assert p_id == a_id
+
+            # qvec is (x, y, z, w) format by default
+            # COLMAP style is (w, x, y, z)
+            Twc = standard_qt_to_pose(qvec, tvec)
+            Tcw = invert_pose(Twc) # COLMAP style
+            qvec, tvec = pose_to_colmap_qt(Tcw)
+            # write
+            line = f"{str(p_id)} {' '.join(map(str, qvec))} {' '.join(map(str, tvec))}\n"
             f.write(line)
 
 
-def load_waypoints(waypoints_file: str) -> np.ndarray:
-    """load waypoint coordinates from text file"""
+def load_waypoints(waypoints_file: str):
+    """load waypoint coordinates from text file and return dict {id: coords}"""
     if not os.path.exists(waypoints_file):
-        raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
+        raise filenotfounderror(f"waypoints file not found: {waypoints_file}")
 
-    waypoints = np.loadtxt(waypoints_file, dtype=np.float32)
-    if waypoints.ndim == 1 and waypoints.shape[0] == 3:
-        waypoints = waypoints.reshape(1, 3)
-    elif waypoints.ndim != 2 or waypoints.shape[1] != 3:
-        raise ValueError(f"expected waypoints shape (N, 3), got {waypoints.shape}")
+    # read file, skip comments and empty lines
+    with open(waypoints_file, 'r') as f:
+        lines = [line.strip() for line in f if not line.startswith('#') and line.strip()]
 
-    logging.info(f"loaded {waypoints.shape[0]} waypoints from {waypoints_file}")
-    return waypoints
+    waypoints_dict = {}
+    for line in lines:
+        parts = line.split()
+        if len(parts) != 4:
+            continue  # skip malformed lines
+        
+        waypoint_id = parts[0]
+        try:
+            # convert x,y,z to float32 numpy array
+            coords = np.array([float(x) for x in parts[1:]], dtype=np.float32)
+        except valueerror:
+            continue  # skip lines with invalid numbers
+        
+        waypoints_dict[waypoint_id] = coords
+
+    if not waypoints_dict:
+        raise valueerror("no valid waypoints found in the file")
+    
+    # log number of waypoints loaded
+    logging.info(f"loaded {len(waypoints_dict)} waypoints from {waypoints_file}")
+    return waypoints_dict
 
 
 def load_sfm_model(sfm_dir: str):
@@ -644,3 +672,59 @@ def load_sfm_model(sfm_dir: str):
         raise ValueError("no images found in the sfm model")
 
     return cameras, images, points3D
+
+
+class InvalidPoseLineError(Exception):
+    pass
+
+def parse_poses_file(input_file, Twc=False, ext=None):
+    """
+    Parses a text file containing image names and SE3 poses (quaternion + translation) in COLMAP style
+    to create transformation matrices (Tcw).
+    
+    Args:
+        input_file (str or Path): Path to the input text file.
+            Each line should be formatted as:
+            <image_name> <qw> <qx> <qy> <qz> <tx> <ty> <tz>
+        Twc (bool): if True invert to match standard camera in world rather than COLMAP style world in camera 
+    Returns:
+        poses_dict (dict): Dictionary to store image names as keys and corresponding 4x4 transformation matrices (Tcw).
+    """
+    input_file = Path(input_file)
+    poses_dict = dict()
+
+    with input_file.open("r") as f:
+        for line in f:
+            parts = line.strip().split()
+            if parts[0] == "#":
+                continue
+            if len(parts) != 8:
+                raise InvalidPoseLineError(f"invalid number of elements in line: {line.strip()}")
+            
+            img_name, qw, qx, qy, qz, tx, ty, tz = parts
+            if(ext is not None):
+                img_name = img_name + ext 
+            
+            print(img_name)
+
+            # Convert quaternion and translation into numpy arrays
+            q = np.array([float(qx), float(qy), float(qz), float(qw)])
+            t = np.array([float(tx), float(ty), float(tz)])
+
+            # Create rotation matrix from quaternion
+            rotation = R.from_quat(q).as_matrix()  # 3x3 rotation matrix
+
+            # Create the 4x4 transformation matrix (Tcw)
+            Tcw = np.eye(4)
+            Tcw[:3, :3] = rotation  # Rotation part
+            Tcw[:3, 3] = t  # Translation part
+
+            # Store the transformation matrix in the dictionary
+            if(Twc):
+                poses_dict[img_name] = invert_pose(Tcw)
+            else:
+                poses_dict[img_name] = Tcw
+
+
+    print(f"loaded {len(poses_dict)} poses")
+    return poses_dict
