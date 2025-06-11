@@ -70,9 +70,9 @@ cd actloc_benchmark/example_data/00005-yPKGKBCyYx8/
 ### `inference.py`
 Predict the best viewing angles for your waypoints (here is where you should put your hands) for now the best angles heuristics is simply based on maximizing the visibility of 3d landmarks. The scripts output full estimate pose (waypoint + orientation) in COLMAP style:
 ```bash
-python ../../inference.py \ 
-    --waypoints-file sampled_waypoints.txt \ 
-    --sfm-dir scene_reconstruction \ 
+python ../../inference.py \
+    --waypoints-file sampled_waypoints.txt \
+    --sfm-dir scene_reconstruction \
     --output-estimate estimate/estimate_poses.txt
 ```
 
@@ -80,8 +80,8 @@ python ../../inference.py \
 Capture images corresponding to previously estimated poses:
 ```bash
 python ../../capture_images_at_best_viewing_directions.py \
-    --pose-file ../00005-yPKGKBCyYx8/estimate/estimate_poses.txt \ 
-    --mesh-file yPKGKBCyYx8.glb \ 
+    --pose-file ../00005-yPKGKBCyYx8/estimate/estimate_poses.txt \
+    --mesh-file yPKGKBCyYx8.glb \
     --output-folder estimate/images
 ```
 
@@ -89,10 +89,10 @@ python ../../capture_images_at_best_viewing_directions.py \
 ```bash
 python ../../match_and_localize.py \
     --sfm_model_path scene_reconstruction \
-    --ref_images_path scene_reconstruction/images \  
-    --ref_features_fn scene_reconstruction/sfm_features.h5 \  
+    --ref_images_path scene_reconstruction/images \
+    --ref_features_fn scene_reconstruction/sfm_features.h5 \
     --query_images_path estimate/images \
-    --poses_fn estimate/estimate_poses.txt \ 
+    --poses_fn estimate/estimate_poses.txt \
     --output_path estimate
 ```
 
