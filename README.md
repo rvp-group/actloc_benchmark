@@ -71,14 +71,14 @@ Predict the best viewing angles for your waypoints (here is where you should put
 python ../../inference.py \
     --waypoints-file sampled_waypoints.txt \
     --sfm-dir scene_reconstruction \
-    --output-estimate estimate/estimate_poses.txt
+    --output-estimate estimate/selected_gt_poses.txt
 ```
 
 ### `capture_images_at_best_viewing_directions.py`
 Capture images corresponding to previously estimated poses:
 ```bash
 python ../../capture_images_at_best_viewing_directions.py \
-    --pose-file ../00005-yPKGKBCyYx8/estimate/estimate_poses.txt \
+    --pose-file ../00005-yPKGKBCyYx8/estimate/selected_gt_poses.txt \
     --mesh-file yPKGKBCyYx8.glb \
     --output-folder estimate/images
 ```
@@ -90,7 +90,7 @@ python ../../match_and_localize.py \
     --ref_images_path scene_reconstruction/images \
     --ref_features_fn scene_reconstruction/sfm_features.h5 \
     --query_images_path estimate/images \
-    --poses_fn estimate/estimate_poses.txt \
+    --poses_fn estimate/selected_gt_poses.txt \
     --output_path estimate
 ```
 
