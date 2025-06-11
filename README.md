@@ -29,22 +29,26 @@ This repository provides an end-to-end pipeline for predicting optimal camera vi
 
 ## Environment Setup
 
-1. **Create the conda environment from the provided environment file:**
+- **Clone the repo:**
    ```bash
-   conda create -n actloc_benchmark  python=3.11
+   git clone --recursive https://github.com/rvp-group/actloc_benchmark
    ```
 
-2. **Activate the environment:**
+- **Create the conda environment:**
    ```bash
-   conda activate actloc_benchmark
+   conda create -n actloc_benchmark  python=3.11 && conda activate actloc_benchmark
    ```
-3. **Install:**
+- **Install:**
    ```bash
-   pip install -r requirements.txt && pip install -e .
+   pip install -r requirements.txt
    ```
 
 ### Download some sample data
 
+Download sample data:
+```bash
+chmod +x download_sample_data.sh && ./download_sample_data.sh
+```
 
 ## Overview
 The pipeline consists of four main components:
@@ -57,11 +61,8 @@ here you need to output the orientations.
 
 We now explain how each module work and what are I/O
 
-## Test with sample data
-Download sample data and make sure you `cd` into the right folder:
+### To work with a specific scene, navigate to its data folder:
 ```bash
-chmod +x download_sample_data.sh
-./download_sample_data.sh
 cd actloc_benchmark/example_data/00005-yPKGKBCyYx8/
 ```
 

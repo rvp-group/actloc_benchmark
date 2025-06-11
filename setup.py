@@ -2,7 +2,7 @@ from pathlib import Path
 from setuptools import setup, find_packages
 import re
 
-description = 'Tools and baselines for visual localization and mapping'
+description = 'Tools for benchmarking action localization models on the ActLoc dataset.'
 
 root = Path(__file__).parent
 with open(str(root / 'README.md'), 'r', encoding='utf-8') as f:
