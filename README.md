@@ -38,7 +38,7 @@ conda create -n actloc_benchmark  python=3.11 && conda activate actloc_benchmark
 ```
 and install
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt && pip install -e .
 ```
 
 ### Download some sample data
@@ -92,6 +92,15 @@ python ../../match_and_localize.py \
     --query_images_path estimate/images \
     --poses_fn estimate/estimate_poses.txt \
     --output_path estimate
+```
+
+### `vis.py`
+```bash
+python ../../vis.py \
+    --meshfile \
+    --gt_poses \
+    --es_poses \
+    --waypoints \
 ```
 
 ### `evaluate.py`

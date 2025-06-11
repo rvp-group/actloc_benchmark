@@ -64,27 +64,8 @@ def set_camera_to_best_viewpoint(vis, Twc):
     ctr = vis.get_view_control()
     cam_params = ctr.convert_to_pinhole_camera_parameters()
 
-    # Set the camera position
-    # Start with the default camera orientation
-    initial_extrinsic = np.array(
-        [
-            [0, -1, 0, 0],  # Transform camera viewpoint
-            [0, 0, -1, 0],
-            [1, 0, 0, 0],
-            [0, 0, 0, 1],
-        ]
-    )
-    # TODO not sure about this part
-    # Extract initial rotation
-    initial_rotation = initial_extrinsic[:3, :3]
-
-    # Create new extrinsic matrix
-    new_extrinsic = np.eye(4)
-    new_extrinsic[:3, :3] = Twc[0:3, 0:3] @ initial_rotation
-    new_extrinsic[:3, 3] = -new_extrinsic[:3, :3] @ Twc[0:3, 3]
-
     # Apply the camera parameters
-    cam_params.extrinsic = new_extrinsic
+    cam_params.extrinsic = np.linalg.inv(Twc)
     success = ctr.convert_from_pinhole_camera_parameters(
         cam_params, allow_arbitrary=True
     )
