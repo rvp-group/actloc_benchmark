@@ -59,7 +59,7 @@ We now explain how each module work and what are I/O
 
 ## Test with sample data
 *TODO script with wget*
-You can download some sample data from here, place this in `actloc_benchmark` and unzip it
+You can download some sample data from [here](https://drive.google.com/file/d/1ZLEts4G_nTbM6VXq-iwSXtc-ISw92_xH/view?usp=drive_link), place this in `actloc_benchmark` and unzip it
 
 ```bash
 cd actloc_benchmark/actloc_benchmark/example_data/00005-yPKGKBCyYx8
