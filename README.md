@@ -28,20 +28,18 @@ input: any <SfM model, mesh, semantics, etc..> + 3D waypoints (mandatory)
 This repository provides an end-to-end pipeline for predicting optimal camera viewing directions at given waypoints in 3D scenes and capturing images at those predicted viewpoints.
 
 ## Environment Setup
-
-- **Clone the repo:**
-   ```bash
-   git clone --recursive https://github.com/rvp-group/actloc_benchmark
-   ```
-
-- **Create the conda environment:**
-   ```bash
-   conda create -n actloc_benchmark  python=3.11 && conda activate actloc_benchmark
-   ```
-- **Install:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Once you clone the repo, make sure you clone its submodules. The localization accuracy calculation is based on [hloc](https://github.com/cvg/Hierarchical-Localization), hence requires some features and matchers locally. Either you clone with flag `--recursive` or you clone and update the submodules this way:
+```bash
+git submodule update --init --recursive
+```
+Create conda environment:
+```bash
+conda create -n actloc_benchmark  python=3.11 && conda activate actloc_benchmark
+```
+and install
+```bash
+pip install -r requirements.txt
+```
 
 ### Download some sample data
 
@@ -59,7 +57,7 @@ here you need to output the orientations.
 3. **`match_and_localize.py`** - Given poses and their corresponding images from step (1) and (2) you want to match and localize against the SfM model. For this purpose we employ [hloc](https://github.com/cvg/Hierarchical-Localization). For each image localized you will have an error.
 4. **`evaluate.py`** - Given the errors from localization, this outputs the F1 score according to [learning-where-to-look](https://link.springer.com/chapter/10.1007/978-3-031-73016-0_12).
 
-We now explain how each module work and what are I/O
+We now explain how each module work and what are I/O through a practical example.
 
 ### To work with a specific scene, navigate to its data folder:
 ```bash
