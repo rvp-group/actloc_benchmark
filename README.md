@@ -58,12 +58,13 @@ here you need to output the orientations.
 We now explain how each module work and what are I/O
 
 ## Test with sample data
-*TODO script with wget*
-You can download some sample data from [here](https://drive.google.com/file/d/1ZLEts4G_nTbM6VXq-iwSXtc-ISw92_xH/view?usp=drive_link), place this in `actloc_benchmark` and unzip it
-
+Download sample data and make sure you `cd` into the right folder:
 ```bash
-cd actloc_benchmark/actloc_benchmark/example_data/00005-yPKGKBCyYx8
+chmod +x download_sample_data.sh
+./download_sample_data.sh
+cd actloc_benchmark/example_data/00005-yPKGKBCyYx8/
 ```
+
 
 ### `inference.py`
 Predict the best viewing angles for your waypoints (here is where you should put your hands) for now the best angles heuristics is simply based on maximizing the visibility of 3d landmarks. The scripts output full estimate pose (waypoint + orientation) in COLMAP style:
