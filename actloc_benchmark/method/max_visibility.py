@@ -27,34 +27,28 @@ def qvec2rotmat(qvec):
         ]
     )
 
+def get_rotation_matrix_from_angles(azim, elev):
+    # R_az = Rot.from_euler('y', azim, degrees=True).as_matrix()
+    # R_el = Rot.from_euler('x', elev, degrees=True).as_matrix()
+    R = Rot.from_euler('yxz', [azim, elev, 0], degrees=True)
+    # return R_el @ R_az
+    return R.as_matrix()
 
-def get_rotation_matrix(azimuth_deg, elevation_deg):
-    # convert angles to radians
-    az = np.radians(azimuth_deg)
-    el = np.radians(elevation_deg)
-
-    # rotation around y (azimuth)
-    R_az = np.array(
-        [[np.cos(az), 0, np.sin(az)], [0, 1, 0], [-np.sin(az), 0, np.cos(az)]]
-    )
-
-    # rotation around x (elevation)
-    R_el = np.array(
-        [[1, 0, 0], [0, np.cos(el), -np.sin(el)], [0, np.sin(el), np.cos(el)]]
-    )
-
-    # final rotation matrix (camera looking in z after rotation)
-    return R_el @ R_az
-
+def get_angles_from_rotation(R):
+    angles = Rot.from_matrix(R).as_euler('yxz', degrees=True)
+    return angles # azimuth, elevation, roll
 
 def count_visible_points(waypoint, R, points, intrinsics):
     # transform points to camera frame
     translated = points - waypoint
     points_cam = (R.T @ translated.T).T  # shape (n, 3)
-
     # keep points in front of camera (z > 0)
     front_mask = points_cam[:, 2] > 0
     points_cam = points_cam[front_mask]
+    
+    # keep points maximum at 1 meters, since we do not account for occlusions here
+    far_mask = points_cam[:, 2] < 3
+    points_cam = points_cam[far_mask]
 
     if points_cam.shape[0] == 0:
         return 0
@@ -85,17 +79,21 @@ def predict_pose(waypoint: np.ndarray, waypoint_idx: int, points: np.ndarray):
 
     for i, elev in enumerate(x_angles):
         for j, azim in enumerate(y_angles):
-            R = get_rotation_matrix(azim, elev)
+            R = get_rotation_matrix_from_angles(azim, elev)
             count = count_visible_points(
                 waypoint, R, points, [fx, fy, cx, cy, height, width]
             )
             visible_counts[i, j] = count
 
     best_idx = np.unravel_index(np.argmax(visible_counts), visible_counts.shape)
+    
     best_elev = x_angles[best_idx[0]]
     best_azim = y_angles[best_idx[1]]
     
-    R = get_rotation_matrix(azim, elev)
+    R = get_rotation_matrix_from_angles(best_azim, best_elev)
+    angles = get_angles_from_rotation(R)
+    print(angles)
+    
     r = Rot.from_matrix(R)
     
     return r.as_quat()

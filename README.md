@@ -104,7 +104,7 @@ python ../../vis.py \
 ```
 
 ### `evaluate.py`
-TODO
+
 
 
 <!-- ## Example Data Download

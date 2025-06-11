@@ -233,12 +233,17 @@ def main(ref_images_path,
         # get localizated pose
         cam_from_world=ret["cam_from_world"]
 
+        print("cam from world\n", cam_from_world)
+
         # make a fk 4x4, making the inversion here for later matrix product
         cam_in_world_estimate = np.vstack([cam_from_world.inverse().matrix(), np.array([0, 0, 0, 1])])
 
         # get GT world in camera
         Tcw = poses[query]
-        
+
+        print("estimate\n", cam_in_world_estimate)
+        print("gt\n", Tcw)
+
         def get_angle(R):
             cos_theta = (np.trace(R)-1)/2
             return np.arccos(cos_theta)
@@ -251,7 +256,7 @@ def main(ref_images_path,
         t_diff = np.linalg.norm(T_diff[0:3, 3])
 
         # query img name, t_diff [m], r_diff [deg]
-        error_pose_file.write(str(query) + " " + str(t_diff) + " " + str(np.rad2deg(angle_error_rad)) + "\n")
+        error_pose_file.write(str(query).strip(".png") + " " + str(t_diff) + " " + str(np.rad2deg(angle_error_rad)) + "\n")
 
         # TODO if num inliers is lower than a threshold loc fail
         if(debug):

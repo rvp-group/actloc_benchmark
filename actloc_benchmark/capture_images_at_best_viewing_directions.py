@@ -51,13 +51,13 @@ def load_waypoints_and_angles(waypoints_file, angles_file):
     return waypoints, angles
 
 
-def set_camera_to_best_viewpoint(vis, Twc):
+def set_camera_to_best_viewpoint(vis, extrinsic):
     """
     Set the camera to a specific position and orient it according to the best viewing angles.
 
     Args:
         vis: Open3D visualizer
-        Twc: homogenous camera matrix camera in world
+        extrinsic: homogenous camera matrix camera in world
        
     """
 
@@ -65,13 +65,13 @@ def set_camera_to_best_viewpoint(vis, Twc):
     cam_params = ctr.convert_to_pinhole_camera_parameters()
 
     # Apply the camera parameters
-    cam_params.extrinsic = np.linalg.inv(Twc)
+    cam_params.extrinsic = extrinsic
     success = ctr.convert_from_pinhole_camera_parameters(
         cam_params, allow_arbitrary=True
     )
 
     if not success:
-        print(f"Warning: Failed to set camera parameters for position {Twc[0:3, 3]}")
+        print(f"Warning: Failed to set camera parameters for position {extrinsic[0:3, 3]}")
 
     vis.update_renderer()
     vis.poll_events()
@@ -80,7 +80,7 @@ def set_camera_to_best_viewpoint(vis, Twc):
 
 
 def capture_best_viewpoint_image(
-    vis, waypoint_idx, Twc, output_folder
+    vis, waypoint_idx, extrinsic, output_folder
 ):
     """
     Capture an image at the best viewpoint for a given waypoint.
@@ -88,11 +88,11 @@ def capture_best_viewpoint_image(
     Args:
         vis: Open3D visualizer
         waypoint_idx: Index of the waypoint (for naming)
-        Twc: 4x4 homogenous transformation describing standard cam in world
+        extrinsic: 4x4 homogenous transformation describing standard world in camera
         output_folder: Folder to save the captured image
     """
     # Set camera to best viewpoint
-    success = set_camera_to_best_viewpoint(vis, Twc)
+    success = set_camera_to_best_viewpoint(vis, extrinsic)
 
     if not success:
         print(f"Failed to set camera for waypoint {waypoint_idx + 1}")
@@ -168,7 +168,7 @@ def main():
             raise RuntimeError(f"Failed to load mesh from {mesh_path}")
 
         print("Loading waypoints and angles...")
-        poses = parse_poses_file(poses_path, Twc=True) # we want standard camera transform camera in world
+        poses = parse_poses_file(poses_path) # we want standard camera transform world in camera
 
         # Setup visualizer
         print("Setting up visualizer...")
@@ -192,12 +192,12 @@ def main():
 
         # Process each waypoint
         successful_captures = 0
-        for idx, Twc in poses.items():
+        for idx, extrinsic in poses.items():
       
             print(f"Processing waypoint {idx}")
 
             success = capture_best_viewpoint_image(
-                vis, idx, Twc, output_folder
+                vis, idx, extrinsic, output_folder
             )
 
             if success:

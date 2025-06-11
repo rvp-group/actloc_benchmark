@@ -679,52 +679,46 @@ class InvalidPoseLineError(Exception):
 
 def parse_poses_file(input_file, Twc=False, ext=None):
     """
-    Parses a text file containing image names and SE3 poses (quaternion + translation) in COLMAP style
-    to create transformation matrices (Tcw).
-    
+    Parses a text file containing image names and SE3 poses (quaternion + translation) in COLMAP style.
+
     Args:
         input_file (str or Path): Path to the input text file.
             Each line should be formatted as:
             <image_name> <qw> <qx> <qy> <qz> <tx> <ty> <tz>
-        Twc (bool): if True invert to match standard camera in world rather than COLMAP style world in camera 
+        Twc (bool): If True, invert pose to get camera in world - not world in camera (extrinsic).
+        ext (str or None): If provided, appends this extension to image names.
+    
     Returns:
-        poses_dict (dict): Dictionary to store image names as keys and corresponding 4x4 transformation matrices (Tcw).
+        dict: image_name -> 4x4 pose matrix (Tcw or Twc depending on flag)
     """
     input_file = Path(input_file)
-    poses_dict = dict()
+    poses_dict = {}
 
     with input_file.open("r") as f:
         for line in f:
-            parts = line.strip().split()
-            if parts[0] == "#":
+            if line.startswith("#") or not line.strip():
                 continue
-            if len(parts) != 8:
-                raise InvalidPoseLineError(f"invalid number of elements in line: {line.strip()}")
-            
-            img_name, qw, qx, qy, qz, tx, ty, tz = parts
-            if(ext is not None):
-                img_name = img_name + ext 
-            
-            print(img_name)
 
-            # Convert quaternion and translation into numpy arrays
+            parts = line.strip().split()
+            if len(parts) != 8:
+                raise ValueError(f"Invalid number of elements in line: {line.strip()}")
+
+            img_name, qw, qx, qy, qz, tx, ty, tz = parts
+            if ext:
+                img_name += ext
+
+            # quaternion (w, x, y, z) -> scipy expects (x, y, z, w)
             q = np.array([float(qx), float(qy), float(qz), float(qw)])
             t = np.array([float(tx), float(ty), float(tz)])
 
-            # Create rotation matrix from quaternion
-            rotation = R.from_quat(q).as_matrix()  # 3x3 rotation matrix
+            # build transformation matrix
+            R_mat = R.from_quat(q).as_matrix()
+            T = np.eye(4)
+            T[:3, :3] = R_mat
+            T[:3, 3] = t
 
-            # Create the 4x4 transformation matrix (Tcw)
-            Tcw = np.eye(4)
-            Tcw[:3, :3] = rotation  # Rotation part
-            Tcw[:3, 3] = t  # Translation part
+            # invert if needed
+            poses_dict[img_name] = invert_pose(T) if Twc else T
 
-            # Store the transformation matrix in the dictionary
-            if(Twc):
-                poses_dict[img_name] = invert_pose(Tcw)
-            else:
-                poses_dict[img_name] = Tcw
-
-
-    print(f"loaded {len(poses_dict)} poses")
+    print(f"Loaded {len(poses_dict)} poses from {input_file}")
     return poses_dict
