@@ -1,3 +1,0 @@
-# Waypoint_ID X_coord Y_coord Z_coord X_angle Y_angle Filename
-1 -0.430514 1.544922 1.940864 20.0 -160.0 waypoint_001_x20_y-160.jpg
-2 8.562314 1.882081 1.283757 0.0 -20.0 waypoint_002_x0_y-20.jpg

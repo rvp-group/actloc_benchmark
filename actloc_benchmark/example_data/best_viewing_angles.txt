@@ -1,3 +1,0 @@
-# X_angle Y_angle (degrees)
-20 -160
-0 -20
