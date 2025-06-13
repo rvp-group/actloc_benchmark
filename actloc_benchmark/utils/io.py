@@ -586,7 +586,6 @@ def pose_to_colmap_qt(Tcw):
     r = R.from_matrix(R_mat)
     quat_xyzw = r.as_quat()  # (x, y, z, w)
     qvec = np.roll(quat_xyzw, 1)  # to COLMAP style (w, x, y, z)
-
     return qvec, tvec
 
 def invert_pose(T):
@@ -619,7 +618,7 @@ def write_colmap_pose_file(poses, angles, output_path):
 def load_waypoints(waypoints_file: str):
     """load waypoint coordinates from text file and return dict {id: coords}"""
     if not os.path.exists(waypoints_file):
-        raise filenotfounderror(f"waypoints file not found: {waypoints_file}")
+        raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
 
     # read file, skip comments and empty lines
     with open(waypoints_file, 'r') as f:
@@ -635,13 +634,13 @@ def load_waypoints(waypoints_file: str):
         try:
             # convert x,y,z to float32 numpy array
             coords = np.array([float(x) for x in parts[1:]], dtype=np.float32)
-        except valueerror:
+        except ValueError:
             continue  # skip lines with invalid numbers
         
         waypoints_dict[waypoint_id] = coords
 
     if not waypoints_dict:
-        raise valueerror("no valid waypoints found in the file")
+        raise ValueError("no valid waypoints found in the file")
     
     # log number of waypoints loaded
     logging.info(f"loaded {len(waypoints_dict)} waypoints from {waypoints_file}")

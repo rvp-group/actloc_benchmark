@@ -98,24 +98,28 @@ def capture_best_viewpoint_image(
         print(f"Failed to set camera for waypoint {waypoint_idx + 1}")
         return False
 
-    # Capture the image
-    image = vis.capture_screen_float_buffer(True)
-    image = np.asarray(image)
-    image = (image * 255).astype(np.uint8)
-
-    # Create output directory if it doesn't exist
+    # capture rgb
+    rgb_img = vis.capture_screen_float_buffer(True)
+    rgb_img = np.asarray(rgb_img)
+    rgb_img = (rgb_img * 255).astype(np.uint8)
+    
+    # capture depth, might be useful for occlusions checks
+    depth_img = vis.capture_depth_float_buffer(True)    
+    depth_img = np.asarray(depth_img)
+    
+    # create output directory if it doesn't exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    # Generate filename
+    # generate filename
     filename = f"{waypoint_idx}.png"
     filepath = os.path.join(output_folder, filename)
 
-    # Save the image
-    o3d.io.write_image(filepath, o3d.geometry.Image(image))
+    # save the image
+    o3d.io.write_image(filepath, o3d.geometry.Image(rgb_img))
 
     print(f"\tsaved: {filename}")
-    return True
+    return True, depth_img
 
 def main():
     parser = argparse.ArgumentParser(
@@ -196,7 +200,7 @@ def main():
       
             print(f"Processing waypoint {idx}")
 
-            success = capture_best_viewpoint_image(
+            success, _ = capture_best_viewpoint_image(
                 vis, idx, extrinsic, output_folder
             )
 

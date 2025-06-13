@@ -158,7 +158,7 @@ def main():
         waypoints_geo.extend(
             create_waypoint_geometries(waypoints, radius=0.2, color=(0, 0, 1))
         )
-
+    
     visualize([mesh] + gt_cam + est_cam + cam_links + waypoints_geo)
 
 
