@@ -55,7 +55,7 @@ The pipeline consists of four main components:
 here you need to output the orientations. 
 2. **`capture_images_at_best_viewing_directions.py`** - Captures images at the predicted best orientations, this is required to evaluate the localization accuracy.
 3. **`match_and_localize.py`** - Given poses and their corresponding images from step (1) and (2) you want to match and localize against the SfM model. For this purpose we employ [hloc](https://github.com/cvg/Hierarchical-Localization). For each image localized you will have an error.
-4. **`evaluate.py`** - Given the errors from localization, this outputs the F1 score according to [learning-where-to-look](https://link.springer.com/chapter/10.1007/978-3-031-73016-0_12).
+4. **`evaluate.py`** - Given the errors from localization, this outputs the localization score according to [learning-where-to-look](https://link.springer.com/chapter/10.1007/978-3-031-73016-0_12).
 
 We now explain how each module work and what are I/O through a practical example.
 
@@ -94,16 +94,19 @@ python ../../match_and_localize.py \
     --output_path estimate
 ```
 
-### `vis.py`
+<!-- ### `vis.py`
 ```bash
 python ../../vis.py \
     --meshfile \
     --gt_poses \
     --es_poses \
     --waypoints \
-```
+``` -->
 
 ### `evaluate.py`
+```bash
+python ../../evaluate.py --error-file estimate/pose_errors.txt
+```
 
 
 

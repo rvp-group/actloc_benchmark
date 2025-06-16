@@ -233,7 +233,7 @@ def main(ref_images_path,
         # get localizated pose
         cam_from_world=ret["cam_from_world"]
 
-        print("cam from world\n", cam_from_world)
+        # print("cam from world\n", cam_from_world)
 
         # make a fk 4x4, making the inversion here for later matrix product
         cam_in_world_estimate = np.vstack([cam_from_world.inverse().matrix(), np.array([0, 0, 0, 1])])
@@ -241,8 +241,8 @@ def main(ref_images_path,
         # get GT world in camera
         Tcw = poses[query]
 
-        print("estimate\n", cam_in_world_estimate)
-        print("gt\n", Tcw)
+        # print("estimate\n", cam_in_world_estimate)
+        # print("gt\n", Tcw)
 
         def get_angle(R):
             cos_theta = (np.trace(R)-1)/2
@@ -265,19 +265,19 @@ def main(ref_images_path,
             output_file = result_outputs / f"{query}_results.png"
             fig.savefig(output_file, bbox_inches="tight")
 
-            pose = pycolmap.Image(cam_from_world=numpy2rigid3d(Tcw))
-            viz_3d.plot_camera_colmap(
-                fig3d, pose, cam_params, color="rgba(0,0,255,0.5)", name=query, fill=True
-            )
-            # if error is ok to be plotted
-            if(t_diff < 5.0):
-                pose = pycolmap.Image(cam_from_world=cam_from_world)
-                viz_3d.plot_camera_colmap(
-                    fig3d, pose, cam_params, color="rgba(0,255,0,0.5)", name=query, fill=True
-                )
+            # pose = pycolmap.Image(cam_from_world=numpy2rigid3d(Tcw))
+            # viz_3d.plot_camera_colmap(
+            #     fig3d, pose, cam_params, color="rgba(0,0,255,0.5)", name=query, fill=True
+            # )
+            # # if error is ok to be plotted
+            # if(t_diff < 5.0):
+            #     pose = pycolmap.Image(cam_from_world=cam_from_world)
+            #     viz_3d.plot_camera_colmap(
+            #         fig3d, pose, cam_params, color="rgba(0,255,0,0.5)", name=query, fill=True
+            #     )
 
-    if(debug):
-        fig3d.show()
+    # if(debug):
+    #     fig3d.show()
     
     error_pose_file.close()
     matches_fn.unlink()
