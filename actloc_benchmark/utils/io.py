@@ -618,8 +618,9 @@ def write_colmap_pose_file(poses, angles, output_path):
 def load_waypoints(waypoints_file: str):
     """load waypoint coordinates from text file and return dict {id: coords}"""
     if not os.path.exists(waypoints_file):
-        raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
-
+        # raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
+        return {}
+    
     # read file, skip comments and empty lines
     with open(waypoints_file, 'r') as f:
         lines = [line.strip() for line in f if not line.startswith('#') and line.strip()]
