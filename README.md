@@ -134,8 +134,6 @@ Here we explain only file formats and what data we provide you as a sample:
 
 ### Full Dataset 
 We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1OyFqkwyBWCA7iDw-GLIXK3xRWPjnATYC/view?usp=drive_link). This contains more scene folders similar to the sample data:
-#### TODO Jiajie
-Explain the format of full data
 
 ```
 formatted_training_data
@@ -163,7 +161,7 @@ In addition, we provide some data that you could potentially employ for training
 - **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
 - **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
 
-You can download it from [here](https://drive.google.com/drive/folders/1vsMV2CI144ihui4oJHrykwCkq0xKWJrJ?usp=sharing) and it is organized as follows:
+You can download it from [here](https://drive.google.com/file/d/1yUMht6FKNfgdQmnIFsTiPeTy1F3aswbs/view?usp=sharing) and it is organized as follows:
 ```
 training_data
 ├── raw_images
