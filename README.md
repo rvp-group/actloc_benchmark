@@ -201,3 +201,9 @@ training_data
     │   └── ...
     └── ...
 ```
+
+Note the camera intrinsics and extrinsics for each image are stored in two files using the [COLMAP output format](https://colmap.github.io/format.html).
+
+- `img_nm_to_colmap_cam.txt`: This file stores the **intrinsic parameters** for each image. Each line contains the image filename, the camera model (always `PINHOLE`), followed by the image width and height, focal lengths (`fx`, `fy`), and the principal point (`cx`, `cy`). These parameters define how 3D points are projected onto the 2D image plane.
+
+- `img_name_to_colmap_Tcw.txt`: This file stores the **extrinsic parameters** for each image, representing the camera pose as a transformation from world coordinates to camera coordinates (Tcw). Each line contains the image filename, followed by a unit quaternion (`qw qx qy qz`) representing rotation and a 3D vector (`tx ty tz`) for translation.
