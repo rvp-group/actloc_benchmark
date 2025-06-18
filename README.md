@@ -155,7 +155,6 @@ formatted_training_data
 ├── <scene_2>  
 │   └── ...   
 └── ...
-
 ```
 
 
