@@ -10,6 +10,10 @@ Active localization is the task of determining the most informative viewpoints t
 
 Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimiality criteria and Fisher information matrics, visibility, distribution of landmarks or deep learned techniques. 
 
+### Important submission information
+Before going through this repo we assumed you have read important information about submission [activep-ws.github.io/challenge](https://activep-ws.github.io/challenge.html)
+
+
 <!-- <p align="center">
   <img src="images/placeholder.png" width="30%" alt="Image 1"/>
 </p> -->
@@ -43,7 +47,7 @@ pip install -r requirements.txt && pip install -e .
 
 ### Download some sample data
 
-Download sample data:
+Download sample data, this consists on a sample mesh `.glb` and an SfM model with cameras, points and images:
 ```bash
 chmod +x download_sample_data.sh && ./download_sample_data.sh
 ```
@@ -94,57 +98,31 @@ python ../../match_and_localize.py \
     --output_path estimate
 ```
 
-<!-- ### `vis.py`
-```bash
-python ../../vis.py \
-    --meshfile \
-    --gt_poses \
-    --es_poses \
-    --waypoints \
-``` -->
+### `vis.py`
+If you want to debug we provide a visualization utility, to visualize different poses. 
 
-### `evaluate.py`
+> [!TIP]
+> Make sure you don't have roll - rotation around the z-optical axis in you "best viewpoints" images.
+
+### TODO Boyang
+
+### `evaluate_loc.py`
 ```bash
-python ../../evaluate.py --error-file estimate/pose_errors.txt
+python ../../evaluate_loc.py --error-file estimate/pose_errors.txt
 ```
+Note that evaluation for single viewpoint localization is based on accuracy intervals, if you want to calculate the accuracy among multiple scenes is enough that you concatenate each `error-file` into a single file and input this to `evaluate_loc.py`. Do not average results, it is not the correct way!
 
+### `evaluate_plan.py`
+### TODO Boyang
 
+## Data provided
 
-<!-- ## Example Data Download
-You can download the example data from [here](https://drive.google.com/drive/folders/1BunuI_wIVeL1oZ1zWxxAfu7HSop7uMMi?usp=sharing) and put it in the root folder of this repo to run the pipeline.
-
-## Quick Start (with the example data)
-
-### Step 1: Run Inference
-
-Predict the best viewing angles for your waypoints:
-
-```bash
-python inference.py \
-    --sfm-dir ./example_data/00005_reference_sfm \
-    --waypoints-file ./example_data/sampled_viewpoints.txt \
-    --output-angles ./example_data/best_viewing_angles.txt
-```
-
-### Step 2: Capture Images
-
-Capture images at the predicted optimal viewpoints:
-
-```bash
-python capture_images_at_best_viewing_directions.py \
-    --mesh-file ./example_data/yPKGKBCyYx8.glb \
-    --waypoints-file ./example_data/sampled_viewpoints.txt \
-    --angles-file ./example_data/best_viewing_angles.txt \
-    --output-folder ./example_data/best_viewpoint_images
-```
-
-## Input Requirements
-
-### For Inference (`inference.py`)
+### File formats and explanation
+Here we explain only file formats and what is the data we provide you as sample, if you are familiar with COLMAP you can skip most of this part:
 
 - **SfM Reconstruction**: COLMAP reconstruction folder containing:
   - `cameras.bin/txt` - Camera intrinsics
-  - `images.bin/txt` - Camera poses and image information
+  - `images.bin/txt` - Camera poses and image/features information
   - `points3D.bin/txt` - 3D point cloud with colors
 - **Waypoints File**: Text file with 3D coordinates (N×3 format)
   ```
@@ -152,103 +130,20 @@ python capture_images_at_best_viewing_directions.py \
   x2 y2 z2
   ...
   ```
-- **Model Checkpoint**: (optional) if you use learning-based method
-
-### For Image Capture (`capture_images_at_best_viewing_directions.py`)
-
 - **Mesh File**: 3D scene mesh (`.glb`, etc.)
-- **Waypoints File**: Same waypoints used for inference
-- **Angles File**: Output from inference step (N×2 format)
-  ```
-  x_angle1 y_angle1
-  x_angle2 y_angle2
-  ...
-  ```
 
-## Camera Coordinate System & Rotation Convention
-
-⚠️ **Important**: This pipeline uses a specific camera coordinate system that differs from common conventions.
-
-### Coordinate System
-- **X-axis rotation (elevation)**: Positive angles rotate the camera **downward**
-- **Y-axis rotation (azimuth)**: Positive angles rotate the camera **leftward**
-
-### Rotation Order
-Rotations are applied in this specific order:
-1. **Y-axis rotation first** (azimuth/horizontal rotation)
-2. **X-axis rotation second** (elevation/vertical rotation)
-
-This is implemented as:
-```python
-rotation_x = R.from_euler('x', np.deg2rad(x_angle)).as_matrix()
-rotation_y = R.from_euler('y', np.deg2rad(y_angle)).as_matrix()
-combined_rotation = rotation_x @ rotation_y @ initial_rotation
-```
-
-### Angle Discretization
-The model predicts viewing directions on a discrete grid:
-- **X-axis**: 6 intervals covering [-60°, +40°] with 20° steps
-- **Y-axis**: 18 intervals covering [-180°, +160°] with 20° steps
-
-## Detailed Usage
-
-### Inference Script (`inference.py`)
-
-```bash
-python inference.py [OPTIONS]
-```
-
-**Key Arguments:**
-- `--sfm-dir`: Path to COLMAP SfM reconstruction folder
-- `--waypoints-file`: Path to waypoints text file
-- `--output-angles`: Output file for best viewing angles
-
-**Output:**
-- Text file with best viewing angles for each waypoint
-- Console output showing prediction grids and probabilities
+### Full Dataset 
+We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or test the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1OyFqkwyBWCA7iDw-GLIXK3xRWPjnATYC/view?usp=drive_link). This contains more scene folder similar to sample data:
+#### TODO
+Explain format of full data
 
 
-### Image Capture Script (`capture_images_at_best_viewing_directions.py`)
+### Full Dataset with Viewpoints
+In addition we provide some data that you could potentially employ for training. This contains already for each sampled waypoint, is pontetial camera orientations and the captured images. So basically the full preprocess is ready for you. Bear in mind that this has been collected at the following orientation resolution:
+- **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
+- **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
 
-```bash
-python capture_images_at_best_viewing_directions.py [OPTIONS]
-```
-
-**Key Arguments:**
-- `--mesh-file`: Path to 3D scene mesh
-- `--waypoints-file`: Path to waypoints text file
-- `--angles-file`: Path to predicted viewing angles
-- `--output-folder`: Output directory for captured images
-
-**Output:**
-- Images named: `waypoint_00001_x20_y-160.jpg`
-- `best_viewpoints_info.txt`: Camera information summary
-
-
-## How to Run Your Own Method:
-
-TBA
-
-## Example Results
-
-After running the pipeline, you'll have:
-```
-example_data/
-├── best_viewing_angles.txt          # Predicted angles
-└── best_viewpoint_images/
-    ├── waypoint_00001_x20_y-160.jpg # Captured images
-    ├── waypoint_00002_x0_y40.jpg
-    ├── ...
-    └── best_viewpoints_info.txt     # Camera metadata
-```
-
-## Full Dataset 
-### Download
-You can download the full dataset, including both training and test data, from [here](https://drive.google.com/drive/folders/1vsMV2CI144ihui4oJHrykwCkq0xKWJrJ?usp=sharing). After downloading, you can put the two zip files into a folder called `full_actloc_data` under the root folder and then unzip the two files there to obtain the `training_data` and `test_data` subfolders.
-
-### Data Folder Structure Explanatio
-The `training_data` and `test_data` folders follow the same layout. Below is an example of how the `training_data` folder is organized:
-
+You can download it from [here](https://drive.google.com/drive/folders/1vsMV2CI144ihui4oJHrykwCkq0xKWJrJ?usp=sharing) and it is organized as follows:
 ```
 training_data
 ├── raw_images
@@ -286,64 +181,3 @@ training_data
     │   └── ...
     └── ...
 ```
-
-#### raw_images
-
-This folder contains all the data needed for Structure-from-Motion (SfM) and for setting up visual localization. Each subfolder under `raw_images` represents a single scene. Inside each scene folder, you will find:
-
-- `scene_reconstruction/`
-  - **images/**  
-    A set of images used to run SfM on this scene.
-  - **img_nm_to_colmap_cam.txt**  
-    Camera intrinsics for each image, stored in the COLMAP output format.
-  - **img_name_to_colmap_Tcw.txt**  
-    World-to-camera poses (ground truth) for the SfM images, also in COLMAP output format.
-
-- `waypoint_i/` (where `i` is a number starting from 1)
-  - **images/**  
-    A set of images captured from different viewpoints at this waypoint. These images are used for visual localization.
-  - **img_nm_to_colmap_cam.txt**  
-    Camera intrinsics for the waypoint images, in COLMAP output format.
-  - **img_name_to_colmap_Tcw.txt**  
-    Ground truth poses for the waypoint images, in COLMAP output format.
-
-- **<scene_name>.glb**  A 3D mesh of the scene stored in GLB format. The filename matches the name of the scene folder.
-
-- **sampled_viewpoints.txt**  A file that contains the world coordinates of all the sampled waypoints used in the scene.
-
-#### sfm_and_localization_results
-
-This folder holds the output of SfM and the results of visual localization. Each subfolder under `sfm_and_localization_results` corresponds to one scene. Inside each scene folder, you will find:
-
-- `scene_reconstruction/`
-  - **cameras.bin**  
-    Binary file containing camera intrinsics for the sparse reconstruction (COLMAP format).
-  - **images.bin**  
-    Binary file containing image poses for the sparse reconstruction (COLMAP format).
-  - **points3D.bin**  
-    Binary file containing 3D point cloud data for the sparse reconstruction (COLMAP format).
-
-- `waypoint_i/scene_reconstruction` (where `i` is a number starting from 1)
-  - **results.txt**  
-    The visual localization results for each image captured at this waypoint. Each line typically includes the estimated pose for a given image.
-  - **pose_errors.txt**  
-    The error (difference) between each estimated pose in `results.txt` and the ground truth pose from `raw_images`. Each line usually shows the translation and rotation error for one image.
-
-### Sample Data Parsing Script
-A sample data parsing script is given in the `sample_data_parser.py`, which can help you to better understand the data. It can be easily tested with the command `python sample_data_parser.py` after having `test_data` in the `full_actloc_data` folder.
-
-### Evaluation
-To evaluate on a specific scene or a folder of scenes (e.g. `training_data` and `test_data`)，you can run the following commands:
-```
-# Evaluate on scene 00005-yPKGKBCyYx8
-python evaluation_script.py --scenes "00005-yPKGKBCyYx8"
-
-# Evaluate on scene 00005-yPKGKBCyYx8 with sparsification
-python evaluation_script.py --scenes "00005-yPKGKBCyYx8" --enable-sparsification
-
-# Evaluate on the test scenes by default
-python evaluation_script.py 
-
-# Evaluate on the test scenes by default with sparsification
-python evaluation_script.py --enable-sparsification
-``` -->

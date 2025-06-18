@@ -38,8 +38,7 @@ def main():
     parser.add_argument('--error-file', type=str, required=True,
                         help="Path to file containing translation and rotation errors.")
     args = parser.parse_args()
-
-    thresholds = [(0.1, 1.0), (0.25, 2.0), (0.5, 5.0), (5.0, 10.0)]
+    thresholds = [(0.05, 0.4), (0.25, 2.0), (0.5, 5.0), (5.0, 10.0)]
 
     errors = load_error_data(args.error_file)
     results = evaluate_thresholds(errors, thresholds)
