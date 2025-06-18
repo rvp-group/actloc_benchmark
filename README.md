@@ -137,6 +137,27 @@ We provide you with a sample dataset including 90 meshes and their SfM model tha
 #### TODO Jiajie
 Explain the format of full data
 
+```
+formatted_training_data
+├── <scene_1>
+│   ├── scene_reconstruction
+│   │   ├── images/
+│   │   ├── cameras.bin
+│   │   ├── images.bin
+│   │   ├── points3D.bin
+│   │   ├── database.db
+│   │   ├── sfm_features.h5
+│   │   ├── sfm_matches.h5
+│   │   └── sfm_retrieval_features.h5
+│   ├── estimates
+│   │   └── waypoints.txt
+│   └── <scene_1>.glb
+├── <scene_2>  
+│   └── ...   
+└── ...
+
+```
+
 
 ### Full Dataset with Viewpoints
 In addition, we provide some data that you could potentially employ for training. This already contains, for each sampled waypoint, potential camera orientations and the captured images. So basically, the full pre-process is ready for you. Bear in mind that this has been collected at the following orientation resolution:
@@ -149,15 +170,15 @@ training_data
 ├── raw_images
 │   ├── <scene_1>
 │   │   ├── scene_reconstruction
-│   │   │   ├── images
+│   │   │   ├── images/
 │   │   │   ├── img_nm_to_colmap_cam.txt
 │   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_1
-│   │   │   ├── images
+│   │   │   ├── images/
 │   │   │   ├── img_nm_to_colmap_cam.txt
 │   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_2
-│   │   │   └── …
+│   │   │   └── ...
 │   │   ├── <scene_1>.glb
 │   │   ├── sampled_viewpoints.txt # The coordinates of all sampled waypoints
 │   │   └── ...
