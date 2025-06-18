@@ -151,15 +151,15 @@ training_data
 │   │   ├── scene_reconstruction
 │   │   │   ├── images
 │   │   │   ├── img_nm_to_colmap_cam.txt
-│   │   │   └── img_name_to_colmap_Tcw.txt
+│   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_1
 │   │   │   ├── images
 │   │   │   ├── img_nm_to_colmap_cam.txt
-│   │   │   └── img_name_to_colmap_Tcw.txt
+│   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_2
 │   │   │   └── …
 │   │   ├── <scene_1>.glb
-│   │   ├── sampled_viewpoints.txt
+│   │   ├── sampled_viewpoints.txt # The coordinates of all sampled waypoints
 │   │   └── ...
 │   ├── <scene_2>
 │   │   └── ...
@@ -167,9 +167,11 @@ training_data
 └── sfm_and_localization_results
     ├── <scene_1>
     │   ├── scene_reconstruction
-    │   │   ├── cameras.bin
-    │   │   ├── images.bin
-    │   │   └── points3D.bin
+    │   |   |—— reference_sfm
+    │   │   │   ├── cameras.bin
+    │   │   │   ├── images.bin
+    │   │   │   ├── points3D.bin
+    │   │   │   └── database.db
     │   ├── waypoint_1
     │   │   ├── scene_reconstruction
     │   │   │   ├── results.txt
