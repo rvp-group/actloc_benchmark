@@ -130,7 +130,7 @@ def main():
     parser.add_argument(
         "--mesh-file",
         type=str,
-        default="./example_data/yPKGKBCyYx8.glb",
+        default="./example_data/DBjEcHFg4oq.glb",
         help="Path to mesh file (.glb, .obj, .ply, etc.)",
     )
     parser.add_argument(

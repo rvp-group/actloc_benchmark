@@ -65,7 +65,7 @@ We now explain how each module works and what the I/O is through a practical exa
 
 ### To work with a specific scene, navigate to its data folder:
 ```bash
-cd actloc_benchmark/example_data/00005-yPKGKBCyYx8/
+cd actloc_benchmark/example_data/00010-DBjEcHFg4oq/
 ```
 
 ### `inference.py`
@@ -81,8 +81,8 @@ python ../../inference.py \
 Capture images corresponding to previously estimated poses:
 ```bash
 python ../../capture_images_at_best_viewing_directions.py \
-    --pose-file ../00005-yPKGKBCyYx8/estimate/selected_gt_poses.txt \
-    --mesh-file yPKGKBCyYx8.glb \
+    --pose-file ../00010-DBjEcHFg4oq/estimate/selected_gt_poses.txt \
+    --mesh-file DBjEcHFg4oq.glb \
     --output-folder estimate/images
 ```
 

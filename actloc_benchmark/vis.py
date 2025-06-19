@@ -129,7 +129,7 @@ def main():
         type=str,
         required=True,
         help="Path to the mesh file.",
-        default="./example_data/00005-yPKGKBCyYx8/yPKGKBCyYx8.glb",
+        default="./example_data/00010-DBjEcHFg4oq/DBjEcHFg4oq.glb",
     )
     parser.add_argument(
         "--gt_poses",

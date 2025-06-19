@@ -53,13 +53,13 @@ def main():
     parser.add_argument(
         "--sfm-dir",
         type=str,
-        default="./example_data/00005-yPKGKBCyYx8/scene_reconstruction",
+        default="./example_data/00010-DBjEcHFg4oq/scene_reconstruction",
         help="path to colmap sfm reconstruction folder",
     )
     parser.add_argument(
         "--waypoints-file",
         type=str,
-        default="./example_data/00005-yPKGKBCyYx8/sampled_waypoints.txt",
+        default="./example_data/00010-DBjEcHFg4oq/sampled_waypoints.txt",
         help="path to text file containing waypoint coordinates [required]",
         required=True,
     )
