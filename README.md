@@ -68,7 +68,6 @@ We now explain how each module works and what the I/O is through a practical exa
 cd actloc_benchmark/example_data/00005-yPKGKBCyYx8/
 ```
 
-
 ### `inference.py`
 Predict the best viewing angles for your waypoints (here is where you should put your hands). For now, the best angles heuristic is simply based on maximizing the visibility of 3d landmarks. The script's output full estimate pose (waypoint + orientation) in COLMAP style:
 ```bash
@@ -99,12 +98,18 @@ python ../../match_and_localize.py \
 ```
 
 ### `vis.py`
-If you want to debug, we provide a visualization utility to visualize different poses. 
+Script to visualize the scene mesh, waypoints, ground truth poses, and estimated poses:
+```bash
+python ../../vis.py \
+    --meshfiles path_to_glb \
+    --gt_poses estimate/selected_gt_poses.txt \
+    --es_poses estimate/estimate_poses.txt\
+    --waypoints sampled_waypoints.txt
+```
 
 > [!TIP]
 > Make sure you don't have roll-rotation around the z-optical axis in your "best viewpoints" images.
 
-### TODO Boyang
 
 ### `evaluate_loc.py`
 ```bash
@@ -113,7 +118,10 @@ python ../../evaluate_loc.py --error-file estimate/pose_errors.txt
 Note that evaluation for single viewpoint localization is based on accuracy intervals. If you want to calculate the accuracy among multiple scenes, it is enough to concatenate each `error-file` into a single file and input this to `evaluate_loc.py`. Do not average results, it is not the correct way!
 
 ### `evaluate_plan.py`
-### TODO Boyang
+
+[Work in Progress]: The evaluation of viewpoint selection for multiple waypoints of a given path is also mainly based on the accuracy intervals, but also consider the viewpoint rotational continuity between consecutive waypoints. This is important for the robot to avoid abrupt changes in orientation. 
+
+```bash
 
 ## Data provided
 
@@ -131,6 +139,9 @@ Here we explain only file formats and what data we provide you as a sample:
   ...
   ```
 - **Mesh File**: 3D scene mesh (`.glb`, etc.)
+
+### Example Data
+We provide one [example scene](https://drive.google.com/drive/folders/1nOYhPeIEP-9xdyAL0F8KXmosDOJol2uQ?usp=drive_link).
 
 ### Full Dataset 
 We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1OyFqkwyBWCA7iDw-GLIXK3xRWPjnATYC/view?usp=drive_link). This contains more scene folders similar to the sample data:
