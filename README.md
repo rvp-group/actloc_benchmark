@@ -121,7 +121,6 @@ Note that evaluation for single viewpoint localization is based on accuracy inte
 
 [Work in Progress]: The evaluation of viewpoint selection for multiple waypoints of a given path is also mainly based on the accuracy intervals, but also consider the viewpoint rotational continuity between consecutive waypoints. This is important for the robot to avoid abrupt changes in orientation. 
 
-```bash
 
 ## Data provided
 
@@ -141,7 +140,7 @@ Here we explain only file formats and what data we provide you as a sample:
 - **Mesh File**: 3D scene mesh (`.glb`, etc.)
 
 ### Example Data
-We provide one [example scene](https://drive.google.com/drive/folders/1nOYhPeIEP-9xdyAL0F8KXmosDOJol2uQ?usp=drive_link).
+We provide one [example scene](https://drive.google.com/file/d/16GVRGFupL65CKmYK5qmjyY4YebP3y3Lo/view?usp=sharing).
 
 ### Full Dataset 
 We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1OyFqkwyBWCA7iDw-GLIXK3xRWPjnATYC/view?usp=drive_link). This contains more scene folders similar to the sample data:
