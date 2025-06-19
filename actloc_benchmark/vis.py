@@ -21,7 +21,7 @@ def load_poses(gt_path=None, es_path=None):
         assert es_poses.shape[1] == 4, "Estimated poses should be of shape (N, 4, 4)"
     else:
         es_poses = None
-    
+
     return gt_poses, es_poses
 
 
@@ -29,8 +29,8 @@ def create_camera_geometries(
     gt_poses, es_poses, cam_scale=0.4, cam_radius=0.025, with_coords=True
 ):
     gt_cam, est_cam = [], []
-    
-    if not gt_poses is None:
+
+    if gt_poses is not None:
         for i in range(gt_poses.shape[0]):
             cam_1 = camera_vis_with_cylinders(
                 gt_poses[
@@ -52,8 +52,8 @@ def create_camera_geometries(
                 gt_cam.append(coord_frame_gt)
 
             gt_cam.extend(cam_1)
-    
-    if not es_poses is None:
+
+    if es_poses is not None:
         for i in range(es_poses.shape[0]):
             cam_2 = camera_vis_with_cylinders(
                 es_poses[i],
@@ -71,7 +71,7 @@ def create_camera_geometries(
                 )
                 coord_frame_es.transform(es_poses[i])
                 est_cam.append(coord_frame_es)
-        
+
         est_cam.extend(cam_2)
 
     return gt_cam, est_cam
@@ -168,7 +168,7 @@ def main():
             waypoints_geo.extend(
                 create_waypoint_geometries(waypoints, radius=0.1, color=(0, 0, 1))
             )
-    
+
     visualize([mesh] + gt_cam + est_cam + cam_links + waypoints_geo)
 
 

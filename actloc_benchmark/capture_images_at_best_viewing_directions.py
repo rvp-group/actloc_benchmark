@@ -3,7 +3,6 @@ import sys
 import argparse
 import numpy as np
 import open3d as o3d
-from scipy.spatial.transform import Rotation as R
 
 from utils.io import *
 
@@ -58,7 +57,7 @@ def set_camera_to_best_viewpoint(vis, extrinsic):
     Args:
         vis: Open3D visualizer
         extrinsic: homogenous camera matrix camera in world
-       
+
     """
 
     ctr = vis.get_view_control()
@@ -71,7 +70,9 @@ def set_camera_to_best_viewpoint(vis, extrinsic):
     )
 
     if not success:
-        print(f"Warning: Failed to set camera parameters for position {extrinsic[0:3, 3]}")
+        print(
+            f"Warning: Failed to set camera parameters for position {extrinsic[0:3, 3]}"
+        )
 
     vis.update_renderer()
     vis.poll_events()
@@ -79,9 +80,7 @@ def set_camera_to_best_viewpoint(vis, extrinsic):
     return success
 
 
-def capture_best_viewpoint_image(
-    vis, waypoint_idx, extrinsic, output_folder
-):
+def capture_best_viewpoint_image(vis, waypoint_idx, extrinsic, output_folder):
     """
     Capture an image at the best viewpoint for a given waypoint.
 
@@ -102,11 +101,11 @@ def capture_best_viewpoint_image(
     rgb_img = vis.capture_screen_float_buffer(True)
     rgb_img = np.asarray(rgb_img)
     rgb_img = (rgb_img * 255).astype(np.uint8)
-    
+
     # capture depth, might be useful for occlusions checks
-    depth_img = vis.capture_depth_float_buffer(True)    
+    depth_img = vis.capture_depth_float_buffer(True)
     depth_img = np.asarray(depth_img)
-    
+
     # create output directory if it doesn't exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -120,6 +119,7 @@ def capture_best_viewpoint_image(
 
     print(f"\tsaved: {filename}")
     return True, depth_img
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -157,7 +157,7 @@ def main():
 
     output_dir = os.path.dirname(args.output_folder)
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # set up paths
     mesh_path = args.mesh_file
     poses_path = args.pose_file
@@ -172,7 +172,9 @@ def main():
             raise RuntimeError(f"Failed to load mesh from {mesh_path}")
 
         print("Loading waypoints and angles...")
-        poses = parse_poses_file(poses_path) # we want standard camera transform world in camera
+        poses = parse_poses_file(
+            poses_path
+        )  # we want standard camera transform world in camera
 
         # Setup visualizer
         print("Setting up visualizer...")
@@ -197,7 +199,7 @@ def main():
         # Process each waypoint
         successful_captures = 0
         for idx, extrinsic in poses.items():
-      
+
             print(f"Processing waypoint {idx}")
 
             success, _ = capture_best_viewpoint_image(

@@ -566,16 +566,17 @@ def rotmat2qvec(R):
 def standard_qt_to_pose(qvec, tvec):
     # qvec: (x, y, z, w)
     # tvec: (3,)
-    
+
     # convert to rotation matrix
     r = R.from_quat(qvec)
     R_mat = r.as_matrix()
-    
+
     # build pose matrix Tcw
     Twc = np.eye(4)
     Twc[:3, :3] = R_mat
     Twc[:3, 3] = tvec
     return Twc
+
 
 def pose_to_colmap_qt(Tcw):
     # extract rotation and translation
@@ -588,10 +589,11 @@ def pose_to_colmap_qt(Tcw):
     qvec = np.roll(quat_xyzw, 1)  # to COLMAP style (w, x, y, z)
     return qvec, tvec
 
+
 def invert_pose(T):
     R_mat = T[:3, :3]
     t = T[:3, 3]
-    
+
     T_inv = np.eye(4)
     T_inv[:3, :3] = R_mat.T
     T_inv[:3, 3] = -R_mat.T @ t
@@ -608,10 +610,12 @@ def write_colmap_pose_file(poses, angles, output_path):
             # qvec is (x, y, z, w) format by default
             # COLMAP style is (w, x, y, z)
             Twc = standard_qt_to_pose(qvec, tvec)
-            Tcw = invert_pose(Twc) # COLMAP style
+            Tcw = invert_pose(Twc)  # COLMAP style
             qvec, tvec = pose_to_colmap_qt(Tcw)
             # write
-            line = f"{str(p_id)} {' '.join(map(str, qvec))} {' '.join(map(str, tvec))}\n"
+            line = (
+                f"{str(p_id)} {' '.join(map(str, qvec))} {' '.join(map(str, tvec))}\n"
+            )
             f.write(line)
 
 
@@ -620,29 +624,31 @@ def load_waypoints(waypoints_file: str):
     if not os.path.exists(waypoints_file):
         # raise FileNotFoundError(f"waypoints file not found: {waypoints_file}")
         return {}
-    
+
     # read file, skip comments and empty lines
-    with open(waypoints_file, 'r') as f:
-        lines = [line.strip() for line in f if not line.startswith('#') and line.strip()]
+    with open(waypoints_file, "r") as f:
+        lines = [
+            line.strip() for line in f if not line.startswith("#") and line.strip()
+        ]
 
     waypoints_dict = {}
     for line in lines:
         parts = line.split()
         if len(parts) != 4:
             continue  # skip malformed lines
-        
+
         waypoint_id = parts[0]
         try:
             # convert x,y,z to float32 numpy array
             coords = np.array([float(x) for x in parts[1:]], dtype=np.float32)
         except ValueError:
             continue  # skip lines with invalid numbers
-        
+
         waypoints_dict[waypoint_id] = coords
 
     if not waypoints_dict:
         raise ValueError("no valid waypoints found in the file")
-    
+
     # log number of waypoints loaded
     logging.info(f"loaded {len(waypoints_dict)} waypoints from {waypoints_file}")
     return waypoints_dict
@@ -677,6 +683,7 @@ def load_sfm_model(sfm_dir: str):
 class InvalidPoseLineError(Exception):
     pass
 
+
 def parse_poses_file(input_file, Twc=False, ext=None):
     """
     Parses a text file containing image names and SE3 poses (quaternion + translation) in COLMAP style.
@@ -687,7 +694,7 @@ def parse_poses_file(input_file, Twc=False, ext=None):
             <image_name> <qw> <qx> <qy> <qz> <tx> <ty> <tz>
         Twc (bool): If True, invert pose to get camera in world - not world in camera (extrinsic).
         ext (str or None): If provided, appends this extension to image names.
-    
+
     Returns:
         dict: image_name -> 4x4 pose matrix (Tcw or Twc depending on flag)
     """

@@ -8,7 +8,7 @@ def load_error_data(filepath):
     Each line should have: <image_name> <translation_error> <rotation_error>
     """
     errors = []
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         for line in f:
             parts = line.strip().split()
             if len(parts) != 3:
@@ -34,9 +34,15 @@ def evaluate_thresholds(errors, thresholds):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate pose errors in visual localization.")
-    parser.add_argument('--error-file', type=str, required=True,
-                        help="Path to file containing translation and rotation errors.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate pose errors in visual localization."
+    )
+    parser.add_argument(
+        "--error-file",
+        type=str,
+        required=True,
+        help="Path to file containing translation and rotation errors.",
+    )
     args = parser.parse_args()
     thresholds = [(0.05, 0.4), (0.25, 2.0), (0.5, 5.0), (5.0, 10.0)]
 
@@ -45,7 +51,9 @@ def main():
 
     print("\nEvaluation Summary:")
     for t_thresh, r_thresh, count, percent in results:
-        print(f"≤ {t_thresh:.2f}m / {r_thresh:.1f}°: {count}/{len(errors)} predictions ({percent:.2f}%)")
+        print(
+            f"≤ {t_thresh:.2f}m / {r_thresh:.1f}°: {count}/{len(errors)} predictions ({percent:.2f}%)"
+        )
 
 
 if __name__ == "__main__":

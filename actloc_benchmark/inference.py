@@ -2,7 +2,6 @@ import argparse
 import logging
 import os
 import sys
-import numpy as np
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -36,7 +35,7 @@ def predict_best_angles_per_pose(input: dict):
 
     ## Make Changes Below This Line
     filtered_points = filter_points_by_error(input["points3D"])
-    best_angles = dict.fromkeys(input["waypoints"])  
+    best_angles = dict.fromkeys(input["waypoints"])
     for key, waypoint in input["waypoints"].items():
         quat_cw = predict_pose(waypoint, key, filtered_points)
         best_angles[key] = quat_cw
@@ -77,7 +76,7 @@ def main():
         logging.info("loading sfm model and waypoints...")
         cameras, images, points3D = load_sfm_model(args.sfm_dir)
         waypoints = load_waypoints(args.waypoints_file)
-        
+
         input = {
             "cameras": cameras,
             "images": images,
@@ -92,7 +91,7 @@ def main():
             output_dir = os.path.dirname(args.output_estimate)
             os.makedirs(output_dir, exist_ok=True)
             logging.info(f"writing results in: {output_dir}")
-            
+
             write_colmap_pose_file(waypoints, best_angles, args.output_estimate)
             logging.info(f"saved best viewing angles to {args.output_estimate}")
 
