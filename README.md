@@ -127,10 +127,12 @@ Note that evaluation for single viewpoint localization is based on accuracy inte
 ### File formats and explanation
 Here we explain only file formats and what data we provide you as a sample:
 
-- **SfM Reconstruction**: COLMAP reconstruction folder containing:
+- **SfM Reconstruction**: HLOC/COLMAP reconstruction folder containing:
   - `cameras.bin/txt` - Camera intrinsics
   - `images.bin/txt` - Camera poses and image/features information
   - `points3D.bin/txt` - 3D point cloud with colors
+  - `database.db` - SQLite file storing keypoints, descriptors, and matches used for SfM
+  - `sfm_features.h5` - HDF5 file with local features (keypoints and descriptors) for SfM images
 - **Waypoints File**: Text file with 3D coordinates (N×3 format)
   ```
   x1 y1 z1
@@ -143,22 +145,19 @@ Here we explain only file formats and what data we provide you as a sample:
 We provide one [example scene](https://drive.google.com/file/d/16GVRGFupL65CKmYK5qmjyY4YebP3y3Lo/view?usp=sharing).
 
 ### Full Dataset 
-We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1OyFqkwyBWCA7iDw-GLIXK3xRWPjnATYC/view?usp=drive_link). This contains more scene folders similar to the sample data:
+We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1oXVfOb-0t9x9QRCUPdG8j7QqbeW_TPRu/view?usp=sharing). This contains more scene folders similar to the sample data:
 
 ```
 formatted_training_data
 ├── <scene_1>
 │   ├── scene_reconstruction
-│   │   ├── images/
+│   │   ├── images/ # Images for SfM
 │   │   ├── cameras.bin
 │   │   ├── images.bin
 │   │   ├── points3D.bin
 │   │   ├── database.db
-│   │   ├── sfm_features.h5
-│   │   ├── sfm_matches.h5
-│   │   └── sfm_retrieval_features.h5
-│   ├── estimates
-│   │   └── waypoints.txt
+│   │   └── sfm_features.h5
+│   ├── waypoints.txt # The coordinates of some waypoints sampled from the free space in the scene
 │   └── <scene_1>.glb
 ├── <scene_2>  
 │   └── ...   
@@ -166,7 +165,7 @@ formatted_training_data
 ```
 
 
-### Full Dataset with Viewpoints
+### Full Dataset with Viewpoints [WIP]
 In addition, we provide some data that you could potentially employ for training. This already contains, for each sampled waypoint, potential camera orientations and the captured images. So basically, the full pre-process is ready for you. Bear in mind that this has been collected at the following orientation resolution:
 - **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
 - **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
