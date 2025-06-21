@@ -218,10 +218,10 @@ Note the camera intrinsics and extrinsics for each image are stored in two files
 
 Estimated camera poses and their evaluation are stored in two plain-text files.
 
-- **`results.txt`** – each line: `image_name qw qx qy qz tx ty tz`  
+- `results.txt` – each line: `image_name qw qx qy qz tx ty tz`  
   The quaternion `qw qx qy qz` and translation `tx ty tz` define the pose in COLMAP world-to-camera (`Tcw`) form.
 
-- **`pose_errors.txt`** – header `# image_name trans_e_m rot_e_deg`; each following line:  
+- `pose_errors.txt` – header `# image_name trans_e_m rot_e_deg`; each following line:  
   `image_name translation_error rotation_error`  
   `translation_error` is the Euclidean distance between estimated and ground-truth camera centres (metres).  
   `rotation_error` is the angle between the two orientations (degrees).
