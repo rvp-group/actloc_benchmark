@@ -170,23 +170,23 @@ In addition, we provide some data that you could potentially employ for training
 - **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
 - **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
 
-You can download it from [here](https://drive.google.com/file/d/1yUMht6FKNfgdQmnIFsTiPeTy1F3aswbs/view?usp=sharing) and it is organized as follows:
+You can download it from [here](https://drive.google.com/file/d/1OpvCGehuhU3WS9Ew54BCGocbzn17447G/view?usp=sharing) and it is organized as follows:
 ```
 training_data
 ├── raw_images
 │   ├── <scene_1>
 │   │   ├── scene_reconstruction
-│   │   │   ├── images/
+│   │   │   ├── images/ # Images for SfM
 │   │   │   ├── img_nm_to_colmap_cam.txt
 │   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_1
-│   │   │   ├── images/
+│   │   │   ├── images/ # Images for Localization at waypoint 1
 │   │   │   ├── img_nm_to_colmap_cam.txt
 │   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
 │   │   ├── waypoint_2
 │   │   │   └── ...
 │   │   ├── <scene_1>.glb
-│   │   ├── sampled_viewpoints.txt # The coordinates of all sampled waypoints
+│   │   ├── sampled_waypoints.txt # The coordinates of all sampled waypoints in the free space of the scene
 │   │   └── ...
 │   ├── <scene_2>
 │   │   └── ...
@@ -194,15 +194,14 @@ training_data
 └── sfm_and_localization_results
     ├── <scene_1>
     │   ├── scene_reconstruction
-    │   |   |—— reference_sfm
-    │   │   │   ├── cameras.bin
-    │   │   │   ├── images.bin
-    │   │   │   ├── points3D.bin
-    │   │   │   └── database.db
+    │   │   ├── cameras.bin
+    │   │   ├── images.bin
+    │   │   ├── points3D.bin
+    │   │   ├── database.db
+    |   |   └── sfm_features.h5
     │   ├── waypoint_1
-    │   │   ├── scene_reconstruction
-    │   │   │   ├── results.txt
-    │   │   │   └── pose_errors.txt
+    │   │   ├── results.txt
+    │   │   └── pose_errors.txt
     │   ├── waypoint_2
     │   │   └── …
     │   └── ...
