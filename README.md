@@ -178,11 +178,11 @@ training_data
 │   │   ├── scene_reconstruction
 │   │   │   ├── images/ # Images for SfM
 │   │   │   ├── img_nm_to_colmap_cam.txt
-│   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
+│   │   │   └── img_name_to_colmap_Tcw.txt
 │   │   ├── waypoint_1
 │   │   │   ├── images/ # Images for Localization at waypoint 1
 │   │   │   ├── img_nm_to_colmap_cam.txt
-│   │   │   └── img_name_to_colmap_Tcw.txt # Extrinsic matrix (world-to-camera) information
+│   │   │   └── img_name_to_colmap_Tcw.txt
 │   │   ├── waypoint_2
 │   │   │   └── ...
 │   │   ├── <scene_1>.glb
@@ -215,3 +215,13 @@ Note the camera intrinsics and extrinsics for each image are stored in two files
 - `img_nm_to_colmap_cam.txt`: This file stores the **intrinsic parameters** for each image. Each line contains the image filename, the camera model (always `PINHOLE`), followed by the image width and height, focal lengths (`fx`, `fy`), and the principal point (`cx`, `cy`). These parameters define how 3D points are projected onto the 2D image plane.
 
 - `img_name_to_colmap_Tcw.txt`: This file stores the **extrinsic parameters** for each image, representing the camera pose as a transformation from world coordinates to camera coordinates (Tcw). Each line contains the image filename, followed by a unit quaternion (`qw qx qy qz`) representing rotation and a 3D vector (`tx ty tz`) for translation.
+
+Estimated camera poses and their evaluation are stored in two plain-text files.
+
+- **`results.txt`** – each line: `image_name qw qx qy qz tx ty tz`  
+  The quaternion `qw qx qy qz` and translation `tx ty tz` define the pose in COLMAP world-to-camera (`Tcw`) form.
+
+- **`pose_errors.txt`** – header `# image_name trans_e_m rot_e_deg`; each following line:  
+  `image_name translation_error rotation_error`  
+  `translation_error` is the Euclidean distance between estimated and ground-truth camera centres (metres).  
+  `rotation_error` is the angle between the two orientations (degrees).
