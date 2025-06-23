@@ -165,7 +165,7 @@ formatted_training_data
 ```
 
 
-### Full Dataset with Viewpoints [WIP]
+### Full Dataset with Viewpoints
 In addition, we provide some data that you could potentially employ for training. This already contains, for each sampled waypoint, potential camera orientations and the captured images. So basically, the full pre-process is ready for you. Bear in mind that this has been collected at the following orientation resolution:
 - **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
 - **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
