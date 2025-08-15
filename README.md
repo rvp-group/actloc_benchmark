@@ -76,6 +76,7 @@ python ../../inference.py \
     --sfm-dir scene_reconstruction \
     --output-estimate estimate/selected_gt_poses.txt
 ```
+**Note:** Use `sampled_waypoints_mini.txt` for faster results. The test set will have a similar density to `sampled_waypoints.txt`.
 
 ### `capture_images_at_best_viewing_directions.py`
 Capture images corresponding to previously estimated poses:
@@ -101,7 +102,7 @@ python ../../match_and_localize.py \
 Script to visualize the scene mesh, waypoints, ground truth poses, and estimated poses:
 ```bash
 python ../../vis.py \
-    --meshfiles path_to_glb \
+    --meshfile DBjEcHFg4oq.glb \
     --gt_poses estimate/selected_gt_poses.txt \
     --es_poses estimate/estimate_poses.txt\
     --waypoints sampled_waypoints.txt
