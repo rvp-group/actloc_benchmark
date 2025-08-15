@@ -111,13 +111,32 @@ def create_waypoint_geometries(waypoints, radius=0.02, color=(0, 0, 1)):
     return waypoints_geo
 
 
-def visualize(geo_list):
-    o3d.visualization.draw_geometries(
-        geo_list,
-        window_name="Camera Frustum Visualization",
-        mesh_show_back_face=False,
-        mesh_show_wireframe=False,
-    )
+def visualize(geo_list, init_Twc=None, init_Tcw=None, width=1280, height=800):
+    vis = o3d.visualization.Visualizer()
+    vis.create_window(window_name="Visualization",
+                      width=width, height=height, visible=True)
+
+    for i, g in enumerate(geo_list):
+        vis.add_geometry(g, reset_bounding_box=(i == 0))
+
+    vis.poll_events()
+    vis.update_renderer()
+
+    vc = vis.get_view_control()
+    params = vc.convert_to_pinhole_camera_parameters()
+
+    if init_Tcw is None and init_Twc is not None:
+        init_Tcw = np.linalg.inv(init_Twc)
+
+    if init_Tcw is not None:
+        params.extrinsic = np.asarray(init_Tcw, dtype=np.float64)
+        vc.convert_from_pinhole_camera_parameters(params, allow_arbitrary=True)
+        vis.poll_events()
+        vis.update_renderer()
+
+    vis.run()
+    vis.destroy_window()
+
 
 
 def main():
@@ -169,7 +188,9 @@ def main():
                 create_waypoint_geometries(waypoints, radius=0.1, color=(0, 0, 1))
             )
 
-    visualize([mesh] + gt_cam + est_cam + cam_links + waypoints_geo)
+
+    visualize([mesh] + gt_cam + est_cam + cam_links + waypoints_geo, init_Twc=np.identity(4),
+              width=1280, height=800)
 
 
 if __name__ == "__main__":

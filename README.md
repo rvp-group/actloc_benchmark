@@ -136,8 +136,8 @@ Here we explain only file formats and what data we provide you as a sample:
   - `sfm_features.h5` - HDF5 file with local features (keypoints and descriptors) for SfM images
 - **Waypoints File**: Text file with 3D coordinates (N×3 format)
   ```
-  x1 y1 z1
-  x2 y2 z2
+  (id1) x1 y1 z1
+  (id2) x2 y2 z2
   ...
   ```
 - **Mesh File**: 3D scene mesh (`.glb`, etc.)
