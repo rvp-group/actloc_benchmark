@@ -10,7 +10,7 @@ then
 fi
 
 # download sample data and unzip
-gdown "https://drive.google.com/uc?id=1R2tTLJjf7Vh_yGNdlOec1kWN5Qeps1Om" \
+gdown "https://drive.google.com/uc?id=1rNUKflwjPzpcHbb9Ssxdt51UKI9oy3_o" \
       -O example_data.zip
 unzip -q example_data.zip
 rm example_data.zip

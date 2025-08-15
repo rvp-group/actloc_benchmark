@@ -76,7 +76,7 @@ python ../../inference.py \
     --sfm-dir scene_reconstruction \
     --output-estimate estimate/selected_gt_poses.txt
 ```
-**Note:** Use `sampled_waypoints_mini.txt` for faster results. The test set will have a similar density to `sampled_waypoints.txt`.
+**Note:**  Use `sampled_waypoints_mini.txt` for faster results. The test set will have a similar density to `sampled_waypoints.txt`.
 
 ### `capture_images_at_best_viewing_directions.py`
 Capture images corresponding to previously estimated poses:
