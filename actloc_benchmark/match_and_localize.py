@@ -177,6 +177,7 @@ def main(
     matches_fn = outputs / "matches.h5"
     loc_pairs_fn = outputs / "pairs_loc.txt"
     error_poses_fn = outputs / "pose_errors.txt"
+    estimate_poses_fn = outputs / "estimate_poses.txt"
 
     # prepare ref and query image paths
     references_fn, references_fullp_fn = get_image_filenames(images)
@@ -187,13 +188,6 @@ def main(
     poses = parse_poses_file(poses_fn, Twc=False, ext=".png")
     check_buffers(queries_fn, cameras)
     check_buffers(queries_fn, poses)
-
-    # TODO just checks the first two elements
-    # queries_fn = queries_fn[51:]
-    # keys = list(cameras.keys())[51:]
-    # cameras = {k: cameras[k] for k in keys}
-    # keys = list(poses.keys())[51:]
-    # poses = {k: poses[k] for k in keys}
 
     # extract features for the query image
     extract_features.main(
@@ -229,9 +223,13 @@ def main(
         viz_3d.plot_reconstruction(
             fig3d, model, color="rgba(255,0,0,0.5)", name="mapping", points_rgb=True
         )
+    
 
-    # write errors to text file
+    # write errors  and estimated poses to files
     error_pose_file = open(error_poses_fn, "w")
+    estimate_pose_file = open(estimate_poses_fn, "w")
+    # write header for estimated poses file: id, qw, qx, qy, qz, tx, ty, tz
+    estimate_pose_file.write("# id qw qx qy qz tx ty tz\n")
 
     for query in queries_fn:
         cam_params = cameras[query]
@@ -254,18 +252,19 @@ def main(
         # get localizated pose
         cam_from_world = ret["cam_from_world"]
 
-        # print("cam from world\n", cam_from_world)
-
         # make a fk 4x4, making the inversion here for later matrix product
         cam_in_world_estimate = np.vstack(
             [cam_from_world.inverse().matrix(), np.array([0, 0, 0, 1])]
         )
 
+        qvec, tvec = pose_to_colmap_qt(np.linalg.inv(cam_in_world_estimate))
+        estimate_pose_file.write(
+            f"{query.strip('.png')} {qvec[0]} {qvec[1]} {qvec[2]} {qvec[3]} {tvec[0]} {tvec[1]} {tvec[2]}\n"
+        )
+
         # get GT world in camera
         Tcw = poses[query]
 
-        # print("estimate\n", cam_in_world_estimate)
-        # print("gt\n", Tcw)
 
         def get_angle(R):
             cos_theta = (np.trace(R) - 1) / 2
@@ -293,20 +292,6 @@ def main(
             fig = plt.gcf()  # ax = fig.axes
             output_file = result_outputs / f"{query}_results.png"
             fig.savefig(output_file, bbox_inches="tight")
-
-            # pose = pycolmap.Image(cam_from_world=numpy2rigid3d(Tcw))
-            # viz_3d.plot_camera_colmap(
-            #     fig3d, pose, cam_params, color="rgba(0,0,255,0.5)", name=query, fill=True
-            # )
-            # # if error is ok to be plotted
-            # if(t_diff < 5.0):
-            #     pose = pycolmap.Image(cam_from_world=cam_from_world)
-            #     viz_3d.plot_camera_colmap(
-            #         fig3d, pose, cam_params, color="rgba(0,255,0,0.5)", name=query, fill=True
-            #     )
-
-    # if(debug):
-    #     fig3d.show()
 
     error_pose_file.close()
     matches_fn.unlink()
