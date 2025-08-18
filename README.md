@@ -143,7 +143,7 @@ Here we explain only file formats and what data we provide you as a sample:
 - **Mesh File**: 3D scene mesh (`.glb`, etc.)
 
 ### Example Data
-We provide one [example scene](https://drive.google.com/file/d/16GVRGFupL65CKmYK5qmjyY4YebP3y3Lo/view?usp=sharing).
+We provide one [example scene](https://drive.google.com/file/d/1cL7FuSUetKux2LWOlD9sRpUi4NX1pRvr/view?usp=sharing).
 
 ### Full Dataset 
 We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1oXVfOb-0t9x9QRCUPdG8j7QqbeW_TPRu/view?usp=sharing). This contains more scene folders similar to the sample data:
