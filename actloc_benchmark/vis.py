@@ -26,53 +26,57 @@ def load_poses(gt_path=None, es_path=None):
 
 
 def create_camera_geometries(
-    gt_poses, es_poses, cam_scale=0.4, cam_radius=0.025, with_coords=True
+    gt_poses, es_poses, cam_scale=0.4, cam_radius=0.025, with_coords=True,
+    scale_sep=0.06,        # GT: (1 - scale_sep), EST: (1 + scale_sep)
+    axial_nudge=0.01       # meters, EST nudged along its +Z
 ):
+    """
+    Always applies separation when both GT and EST are available at index i:
+      - GT frustum scaled down, EST scaled up (concentric edges are visible).
+    """
     gt_cam, est_cam = [], []
 
-    if gt_poses is not None:
-        for i in range(gt_poses.shape[0]):
-            cam_1 = camera_vis_with_cylinders(
-                gt_poses[
-                    i
-                ],  # IMPORTANT: poses here should be camera in world (inverse of camera extrinsics)
-                wh_ratio=4.0 / 3.0,
-                scale=cam_scale,
-                fovx=90.0,
-                color=(0, 1, 0),
-                radius=cam_radius,
-            )
+    def add_cam_and_frame(T, color, scale, radius, container):
+        cam = camera_vis_with_cylinders(
+            T, wh_ratio=4.0/3.0, scale=scale, fovx=90.0, color=color, radius=radius
+        )
+        if with_coords:
+            cf = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1, origin=[0,0,0])
+            cf.transform(T)
+            container.append(cf)
+        # small sphere at camera center
+        s = o3d.geometry.TriangleMesh.create_sphere(radius=cam_radius*0.6)
+        s.paint_uniform_color(color)
+        s.translate(T[:3,3])
+        container.extend(cam + [s])
 
-            if with_coords:
-                # Add coordinate frames for each camera
-                coord_frame_gt = o3d.geometry.TriangleMesh.create_coordinate_frame(
-                    size=1, origin=[0, 0, 0]
-                )
-                coord_frame_gt.transform(gt_poses[i])
-                gt_cam.append(coord_frame_gt)
+    # how many rows to iterate (handle unequal lengths gracefully)
+    N = 0
+    if gt_poses is not None: N = max(N, gt_poses.shape[0])
+    if es_poses is not None: N = max(N, es_poses.shape[0])
 
-            gt_cam.extend(cam_1)
+    for i in range(N):
+        T_gt = gt_poses[i] if (gt_poses is not None and i < gt_poses.shape[0]) else None
+        T_es = es_poses[i] if (es_poses is not None and i < es_poses.shape[0]) else None
 
-    if es_poses is not None:
-        for i in range(es_poses.shape[0]):
-            cam_2 = camera_vis_with_cylinders(
-                es_poses[i],
-                wh_ratio=4.0 / 3.0,
-                scale=cam_scale,
-                fovx=90.0,
-                color=(1, 0, 0),
-                radius=cam_radius,
-            )
+        if T_gt is not None and T_es is not None:
+            # scales for a matched pair
+            gt_scale_i = cam_scale * (1.0 - scale_sep)
+            es_scale_i = cam_scale * (1.0 + scale_sep)
 
-            if with_coords:
-                # Add coordinate frames for each camera
-                coord_frame_es = o3d.geometry.TriangleMesh.create_coordinate_frame(
-                    size=1, origin=[0, 0, 0]
-                )
-                coord_frame_es.transform(es_poses[i])
-                est_cam.append(coord_frame_es)
+            # nudge EST along its own +Z
+            T_nudge = np.eye(4); T_nudge[:3,3] = np.array([0.0, 0.0, axial_nudge])
+            T_es_draw = T_es @ T_nudge
 
-        est_cam.extend(cam_2)
+            add_cam_and_frame(T_gt, (0,1,0), gt_scale_i, cam_radius*0.9, gt_cam)
+            add_cam_and_frame(T_es_draw, (1,0,0), es_scale_i, cam_radius*1.1, est_cam)
+
+        else:
+            # draw whichever exists, no separation needed
+            if T_gt is not None:
+                add_cam_and_frame(T_gt, (0,1,0), cam_scale, cam_radius, gt_cam)
+            if T_es is not None:
+                add_cam_and_frame(T_es, (1,0,0), cam_scale, cam_radius, est_cam)
 
     return gt_cam, est_cam
 
