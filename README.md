@@ -82,7 +82,7 @@ python ../../inference.py \
 Capture images corresponding to previously estimated poses:
 ```bash
 python ../../capture_images_at_best_viewing_directions.py \
-    --pose-file ../00010-DBjEcHFg4oq/estimate/selected_gt_poses.txt \
+    --pose-file ./estimate/selected_gt_poses.txt \
     --mesh-file DBjEcHFg4oq.glb \
     --output-folder estimate/images
 ```
