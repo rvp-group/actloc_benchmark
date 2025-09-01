@@ -119,9 +119,28 @@ python ../../evaluate_loc.py --error-file estimate/pose_errors.txt
 Note that evaluation for single viewpoint localization is based on accuracy intervals. If you want to calculate the accuracy among multiple scenes, it is enough to concatenate each `error-file` into a single file and input this to `evaluate_loc.py`. Do not average results, it is not the correct way!
 
 ### `evaluate_plan.py`
+```bash
+python ../../evaluate_loc.py --error-file estimate/pose_errors.txt --selected-pose-file estimate/selected_gt_poses.txt 
+```
 
-[Work in Progress]: The evaluation of viewpoint selection for multiple waypoints of a given path is also mainly based on the accuracy intervals, but also consider the viewpoint rotational continuity between consecutive waypoints. This is important for the robot to avoid abrupt changes in orientation. 
+In addition to standard **single-viewpoint localization** metrics, the evaluation for **localization-aware path planning** introduces an additional criterion: the **relative rotation between consecutive waypoints**.
 
+For a set of poses selected by a method and their corresponding localization errors, the evaluation considers the following constraints:
+
+- The frame is **successfully localized** if:
+  - Translation error < **0.25 meters**
+  - Rotation error < **2.0 degrees**
+
+- The frame must also exhibit a **smooth rotation** from its previous pose:
+  - Relative rotation < **30 degrees**
+
+The **relative rotation** is computed using the **shortest axis-angle rotation** between two consecutive frames. The **translation distance** between consecutive frames is approximately **0.2 meters**.
+
+The final metric reports the **percentage of frames** that satisfy **both** constraints:
+1. Accurate localization
+2. Smooth rotational transition
+
+The orientation of the **first frame** (i.e., the robot's initial viewing direction) can be chosen arbitrarily. Its relative rotation is considered **zero** to allow flexibility in starting orientation and to encourage favorable initialization.
 
 ## Data provided
 
