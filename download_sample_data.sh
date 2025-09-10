@@ -1,5 +1,5 @@
 #!/bin/bash
-
+mkdir -p actloc_benchmark/example_data
 cd actloc_benchmark/example_data
 
 # download using gdown (install if missing)
