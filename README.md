@@ -242,3 +242,5 @@ Estimated camera poses and their evaluation are stored in two plain-text files.
 
 - `pose_errors.txt`: This file stores the **pose errors** for each image. The first line is a header `# image_name trans_e_m rot_e_deg`. Each following line contains the image filename, the translation error (`trans_e_m`, Euclidean distance in metres between estimated and ground-truth camera centres) and the rotation error (`rot_e_deg`, smallest angle in degrees between the two orientations).
 
+### Acknowledgement
+This work has been supported by PNRR MUR project PE0000013-FAIR.
