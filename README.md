@@ -1,5 +1,9 @@
 # Active Localization Benchmark
 
+## Deadline Extension for Active Perception Workshop @ IROS 2025
+****The challenge deadline is extended to the 28th September 2025, 23:59 AoE. For other submission info check [activep-ws.github.io/challenge](https://activep-ws.github.io/challenge.html)****
+---
+
 Active localization is the task of determining the most informative viewpoints to improve a robot’s pose estimation within a known map. Traditionally, a robot navigating an environment may rely on passive localization—simply pointing its camera forward while moving. However, this ignores the fact that not all viewpoints are equally informative. Consider a scenario where the robot faces a featureless white wall: looking straight ahead in this case offers little to no localization cues.
 
 <!-- <p align="center">
@@ -9,10 +13,6 @@ Active localization is the task of determining the most informative viewpoints t
 </p> -->
 
 Active localization instead aims to reason about the environment and proactively select viewpoints that maximize perceptual information, improving robustness and accuracy, especially in ambiguous or textureless areas. Heuristics in where to look can be achieved through optimality criteria and Fisher information matrices, visibility, distribution of landmarks, or deep learned techniques. 
-
-### Important submission information
-Before going through this repo, we assumed you have read important information about submission [activep-ws.github.io/challenge](https://activep-ws.github.io/challenge.html)
-
 
 <!-- <p align="center">
   <img src="images/placeholder.png" width="30%" alt="Image 1"/>
