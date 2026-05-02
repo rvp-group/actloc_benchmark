@@ -165,7 +165,7 @@ Here we explain only file formats and what data we provide you as a sample:
 We provide one [example scene](https://drive.google.com/file/d/1cL7FuSUetKux2LWOlD9sRpUi4NX1pRvr/view?usp=sharing).
 
 ### Full Dataset 
-We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/1oXVfOb-0t9x9QRCUPdG8j7QqbeW_TPRu/view?usp=sharing). This contains more scene folders similar to the sample data:
+We provide you with a sample dataset including 90 meshes and their SfM model that you can use for training or testing the robustness of your approach. You can download data from [here](https://drive.google.com/file/d/17oQLNyc0LCn__1CnhGRquP1y5_t3rdiD/view?usp=sharing). This contains more scene folders similar to the sample data:
 
 ```
 formatted_training_data
@@ -190,7 +190,7 @@ In addition, we provide some data that you could potentially employ for training
 - **elevation-axis**: 6 intervals covering [-60°, +40°] with 20° steps
 - **azimuthal-axis**: 18 intervals covering [-180°, +160°] with 20° steps
 
-You can download it from [here](https://drive.google.com/file/d/1OpvCGehuhU3WS9Ew54BCGocbzn17447G/view?usp=sharing) and it is organized as follows:
+You can download it from [here](https://drive.google.com/file/d/1WXEu1SLCQC-bZvkpFBkv4zOh08K35UO3/view?usp=drive_link) and it is organized as follows:
 ```
 training_data
 ├── raw_images
