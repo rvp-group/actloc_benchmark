@@ -1,0 +1,27 @@
+name: actloc_env
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+channel_priority: strict
+dependencies:
+  - python=3.10
+  - pip
+  - numpy>=2.2,<3
+  - scipy>=1.12
+  - scikit-learn>=1.4
+  - pandas>=2.2
+  - matplotlib>=3.8
+  - pytorch>=2.5,<2.7
+  - torchvision>=0.20,<0.22
+  - torchaudio>=2.5,<2.7
+  - pytorch-cuda=12.4        
+  - open3d>=0.19             
+  - pip:
+      - einops==0.8.1
+      - tqdm==4.67.1
+      - pyquaternion==0.9.9
+      - dash==3.0.4
+      - plotly==6.1.2
+      - flash-attn==2.8.3

@@ -1,3 +1,14 @@
+
+
+# challange submission 
+
+We have used the ActLoc repo in our process to use the model. 
+We should have CUDA installed on our system to run this.
+We have used our own your_method.py and imported it in inference.py.
+In the inference.py, we have changed the section where in quotes, it was written that we can edit that section.
+
+The example dataset have been removed.
+
 # Active Localization Benchmark
 
 ## Deadline Extension for Active Perception Workshop @ IROS 2025

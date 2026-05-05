@@ -2,6 +2,7 @@ import argparse
 import logging
 import os
 import sys
+from scipy.spatial.transform import Rotation as R
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -14,33 +15,23 @@ except ImportError as e:
     logging.error("ensure utils/io.py is accessible")
     sys.exit(1)
 
-# IMPORT YOUR METHOD BELOW
-# from method.your_method import your_method_function  # replace with your actual method function
 
-# this is one provided example
-from method.max_visibility import predict_pose, filter_points_by_error
+from method.your_method import actloc_predict_best_angles
 
-############
-
-
-## IMPORTANT:
-# This is the wrapper function that will be called by the benchmark script.
-# You should not change the function signature or the input/output format.
-# Instead, implement your method logic inside the predict_best_angles_per_pose function.
 
 
 def predict_best_angles_per_pose(input: dict):
 
-    best_angles = []  # store best angles for each waypoint
+    best_angles = {}  # store best angles for each waypoint
 
-    ## Make Changes Below This Line
-    filtered_points = filter_points_by_error(input["points3D"])
-    best_angles = dict.fromkeys(input["waypoints"])
-    for key, waypoint in input["waypoints"].items():
-        quat_cw = predict_pose(waypoint, key, filtered_points)
-        best_angles[key] = quat_cw
+
+    checkpoint_path = "ActLoc/checkpoints/trained_actloc.pth"
+    best_angles = actloc_predict_best_angles(input, checkpoint_path)
     ## Make Changes Above This Line
     return best_angles
+
+
+
 
 
 def main():
@@ -48,7 +39,6 @@ def main():
         description="run inference on sfm scene with waypoints"
     )
 
-    # required arguments
     parser.add_argument(
         "--sfm-dir",
         type=str,
