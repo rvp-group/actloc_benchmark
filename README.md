@@ -1,3 +1,10 @@
+# Challenge submission
+
+We have used our own your_method.py and imported it in inference.py. In the inference.py, we have changed the section where in quotes, it was written that we can edit that section.
+The example dataset have been removed.
+# Paper link
+https://drive.google.com/file/d/1leRuLNlpEqb7DpISPoUq6Hfy0DdOBeub/view?usp=sharing
+
 # Active Localization Benchmark
 
 ## Deadline Extension for Active Perception Workshop @ IROS 2025
